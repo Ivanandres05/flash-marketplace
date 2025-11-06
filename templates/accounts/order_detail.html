@@ -1,0 +1,251 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Detalle del Pedido #{{ order.id }} - Flash Marketplace{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Hola, {{ user.first_name|default:user.username }}</h5>
+                    <p class="text-muted small">Gestiona tu cuenta y revisa tus pedidos</p>
+                    <hr>
+                    <nav class="nav flex-column">
+                        <a class="nav-link" href="{% url 'accounts:profile' %}">
+                            <i class="fas fa-user me-2"></i>Mi Perfil
+                        </a>
+                        <a class="nav-link active" href="{% url 'accounts:orders' %}">
+                            <i class="fas fa-box me-2"></i>Mis Pedidos
+                        </a>
+                        <a class="nav-link" href="{% url 'accounts:addresses' %}">
+                            <i class="fas fa-map-marker-alt me-2"></i>Direcciones
+                        </a>
+                        <a class="nav-link" href="{% url 'accounts:payment-methods' %}">
+                            <i class="fas fa-credit-card me-2"></i>Métodos de Pago
+                        </a>
+                        <a class="nav-link" href="{% url 'accounts:wishlist' %}">
+                            <i class="fas fa-heart me-2"></i>Lista de Deseos
+                        </a>
+                        <a class="nav-link" href="{% url 'accounts:my-reviews' %}">
+                            <i class="fas fa-star me-2"></i>Mis Reseñas
+                        </a>
+                        <a class="nav-link" href="{% url 'accounts:settings' %}">
+                            <i class="fas fa-cog me-2"></i>Configuración
+                        </a>
+                        <hr>
+                        <a class="nav-link text-danger" href="{% url 'accounts:logout' %}">
+                            <i class="fas fa-sign-out-alt me-2"></i>Cerrar Sesión
+                        </a>
+                    </nav>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-9">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="mb-0">Pedido #{{ order.id }}</h2>
+                    <p class="text-muted mb-0">Realizado el {{ order.created_at|date:"d/m/Y H:i" }}</p>
+                </div>
+                <a href="{% url 'accounts:orders' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Volver a Mis Pedidos
+                </a>
+            </div>
+
+            {% if messages %}
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                {% endfor %}
+            {% endif %}
+
+            <!-- Estado del Pedido -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <h5 class="mb-2">Estado del Pedido</h5>
+                            {% if order.status == 'pending' %}
+                            <span class="badge bg-warning text-dark fs-6">Pendiente</span>
+                            <p class="text-muted mt-2 mb-0">Tu pedido está siendo procesado</p>
+                            {% elif order.status == 'processing' %}
+                            <span class="badge bg-info fs-6">Procesando</span>
+                            <p class="text-muted mt-2 mb-0">Estamos preparando tu pedido</p>
+                            {% elif order.status == 'shipped' %}
+                            <span class="badge bg-primary fs-6">Enviado</span>
+                            <p class="text-muted mt-2 mb-0">Tu pedido está en camino</p>
+                            {% elif order.status == 'delivered' %}
+                            <span class="badge bg-success fs-6">Entregado</span>
+                            <p class="text-muted mt-2 mb-0">Tu pedido ha sido entregado</p>
+                            {% elif order.status == 'canceled' %}
+                            <span class="badge bg-danger fs-6">Cancelado</span>
+                            <p class="text-muted mt-2 mb-0">Este pedido ha sido cancelado</p>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-4 text-end">
+                            {% if order.status == 'pending' or order.status == 'processing' %}
+                            <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#cancelOrderModal">
+                                <i class="fas fa-times me-2"></i>Cancelar Pedido
+                            </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <!-- Productos -->
+                <div class="col-md-8">
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fas fa-shopping-bag me-2"></i>Productos</h5>
+                        </div>
+                        <div class="card-body">
+                            {% for item in order.items.all %}
+                            <div class="row align-items-center mb-3 {% if not forloop.last %}border-bottom pb-3{% endif %}">
+                                <div class="col-md-2">
+                                    {% if item.product.images.first %}
+                                    <img src="{{ item.product.images.first.image.url }}" alt="{{ item.product.name }}" class="img-fluid rounded">
+                                    {% else %}
+                                    <img src="{% static 'img/placeholder.jpg' %}" alt="{{ item.product.name }}" class="img-fluid rounded">
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-6">
+                                    <h6 class="mb-1">{{ item.product.name }}</h6>
+                                    <p class="text-muted small mb-0">Cantidad: {{ item.quantity }}</p>
+                                </div>
+                                <div class="col-md-4 text-end">
+                                    <p class="mb-0"><strong>${{ item.price }}</strong> c/u</p>
+                                    <p class="text-muted mb-0">Subtotal: <strong>${{ item.subtotal }}</strong></p>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Dirección de Envío -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fas fa-map-marker-alt me-2"></i>Dirección de Envío</h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="mb-1"><strong>Dirección:</strong> {{ order.shipping_address }}</p>
+                            <p class="mb-1"><strong>Ciudad:</strong> {{ order.shipping_city }}</p>
+                            <p class="mb-1"><strong>Departamento:</strong> {{ order.shipping_state }}</p>
+                            <p class="mb-1"><strong>Código Postal:</strong> {{ order.shipping_zip_code }}</p>
+                            <p class="mb-0"><strong>Teléfono:</strong> {{ order.shipping_phone }}</p>
+                        </div>
+                    </div>
+
+                    <!-- Método de Pago -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fas fa-credit-card me-2"></i>Método de Pago</h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="mb-0">
+                                {% if order.payment_method == 'card' %}
+                                <i class="fas fa-credit-card me-2"></i>Tarjeta de Crédito/Débito
+                                {% elif order.payment_method == 'pse' %}
+                                <i class="fas fa-university me-2"></i>PSE
+                                {% elif order.payment_method == 'cash' %}
+                                <i class="fas fa-money-bill-wave me-2"></i>Efectivo
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+
+                    {% if order.notes %}
+                    <!-- Notas -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fas fa-sticky-note me-2"></i>Notas</h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="mb-0">{{ order.notes }}</p>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Resumen del Pedido -->
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">Resumen del Pedido</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Subtotal:</span>
+                                <strong>${{ order.subtotal }}</strong>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Envío:</span>
+                                <strong>${{ order.shipping_cost }}</strong>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>IVA (19%):</span>
+                                <strong>${{ order.tax }}</strong>
+                            </div>
+                            <hr>
+                            <div class="d-flex justify-content-between mb-0">
+                                <span class="h5 mb-0">Total:</span>
+                                <span class="h5 mb-0 text-primary">${{ order.total_amount }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Acciones Adicionales -->
+                    <div class="card mt-3">
+                        <div class="card-body">
+                            <h6 class="mb-3">¿Necesitas ayuda?</h6>
+                            <a href="#" class="btn btn-outline-primary w-100 mb-2">
+                                <i class="fas fa-headset me-2"></i>Contactar Soporte
+                            </a>
+                            <a href="{% url 'orders:download_invoice' order.id %}" class="btn btn-outline-secondary w-100" target="_blank">
+                                <i class="fas fa-download me-2"></i>Descargar Factura
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Cancelación -->
+<div class="modal fade" id="cancelOrderModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Cancelar Pedido</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" action="{% url 'accounts:cancel-order' order.id %}">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <p>¿Estás seguro de que deseas cancelar este pedido?</p>
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Esta acción no se puede deshacer.
+                    </div>
+                    <div class="mb-3">
+                        <label for="cancel_reason" class="form-label">Motivo de cancelación (opcional)</label>
+                        <textarea class="form-control" id="cancel_reason" name="cancel_reason" rows="3" placeholder="Cuéntanos por qué deseas cancelar este pedido..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No, mantener pedido</button>
+                    <button type="submit" class="btn btn-danger">Sí, cancelar pedido</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,158 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Servicio al Cliente - Flash{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <h1 class="mb-4">Servicio al Cliente</h1>
+            
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h2 class="h4 mb-3">¿Cómo podemos ayudarte?</h2>
+                    <p>Nuestro equipo de servicio al cliente está disponible para ayudarte con cualquier pregunta o problema que puedas tener.</p>
+                </div>
+            </div>
+
+            <div class="row mb-4">
+                <div class="col-md-4 mb-3">
+                    <div class="card h-100 text-center">
+                        <div class="card-body">
+                            <i class="fas fa-phone fa-3x text-primary mb-3"></i>
+                            <h5>Teléfono</h5>
+                            <p>+57 300 123 4567</p>
+                            <p class="small text-muted">Lun - Vie: 8am - 6pm<br>Sáb: 9am - 2pm</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="card h-100 text-center">
+                        <div class="card-body">
+                            <i class="fas fa-envelope fa-3x text-primary mb-3"></i>
+                            <h5>Email</h5>
+                            <p>support@flashmarketplace.com</p>
+                            <p class="small text-muted">Respuesta en 24 horas</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="card h-100 text-center">
+                        <div class="card-body">
+                            <i class="fas fa-comments fa-3x text-primary mb-3"></i>
+                            <h5>Chat en Vivo</h5>
+                            <p>Asistencia inmediata</p>
+                            <button class="btn btn-primary btn-sm">Iniciar Chat</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h2 class="h4 mb-3">Preguntas Frecuentes</h2>
+                    
+                    <div class="accordion" id="faqAccordion">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
+                                    ¿Cómo realizo un pedido?
+                                </button>
+                            </h2>
+                            <div id="faq1" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    Simplemente navega por nuestro catálogo, agrega productos a tu carrito, procede al checkout y completa tu información de pago y envío.
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
+                                    ¿Cuánto tiempo tarda el envío?
+                                </button>
+                            </h2>
+                            <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    El tiempo de envío varía según tu ubicación. Generalmente, los pedidos se entregan en 3-5 días hábiles en ciudades principales y 5-7 días en otras zonas.
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
+                                    ¿Puedo cancelar mi pedido?
+                                </button>
+                            </h2>
+                            <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    Sí, puedes cancelar tu pedido antes de que sea enviado. Contacta a nuestro servicio al cliente lo antes posible.
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq4">
+                                    ¿Cómo rastreo mi pedido?
+                                </button>
+                            </h2>
+                            <div id="faq4" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    Puedes rastrear tu pedido desde tu cuenta en la sección "Mis Pedidos". Recibirás actualizaciones por email con el número de seguimiento.
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq5">
+                                    ¿Es seguro comprar en Flash?
+                                </button>
+                            </h2>
+                            <div id="faq5" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    Completamente seguro. Utilizamos encriptación SSL y cumplimos con los estándares de seguridad PCI DSS. Tus datos están protegidos.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-body">
+                    <h2 class="h4 mb-3">Formulario de Contacto</h2>
+                    <form>
+                        <div class="mb-3">
+                            <label class="form-label">Nombre</label>
+                            <input type="text" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Asunto</label>
+                            <select class="form-select">
+                                <option>Pregunta sobre pedido</option>
+                                <option>Problema con producto</option>
+                                <option>Devolución</option>
+                                <option>Sugerencia</option>
+                                <option>Otro</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Mensaje</label>
+                            <textarea class="form-control" rows="4" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Enviar Mensaje</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

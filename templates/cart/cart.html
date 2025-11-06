@@ -1,0 +1,713 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Carrito de Compras - Flash{% endblock %}
+
+{% block extra_css %}
+<style>
+    .cart-container {
+        max-width: 1200px;
+        margin: 40px auto;
+        padding: 0 20px;
+    }
+
+    .cart-grid {
+        display: grid;
+        grid-template-columns: 1fr 350px;
+        gap: 30px;
+    }
+
+    .cart-items {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .cart-header {
+        padding: 20px 30px;
+        border-bottom: 1px solid #e7e7e7;
+    }
+
+    .cart-header h1 {
+        font-size: 28px;
+        color: var(--flash-dark);
+        margin: 0;
+    }
+
+    .cart-item {
+        padding: 20px 30px;
+        border-bottom: 1px solid #f0f0f0;
+        display: flex;
+        gap: 20px;
+    }
+
+    .cart-item:last-child {
+        border-bottom: none;
+    }
+
+    .item-image {
+        width: 150px;
+        height: 150px;
+        object-fit: cover;
+        border-radius: 4px;
+        border: 1px solid #e7e7e7;
+    }
+
+    .item-details {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .item-name {
+        font-size: 18px;
+        font-weight: 600;
+        color: var(--flash-dark);
+        margin-bottom: 8px;
+        text-decoration: none;
+    }
+
+    .item-name:hover {
+        color: var(--flash-orange);
+    }
+
+    .item-stock {
+        color: #007600;
+        font-size: 13px;
+        margin-bottom: 12px;
+    }
+
+    .item-stock.out-of-stock {
+        color: #d32f2f;
+    }
+
+    .item-actions {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        margin-top: auto;
+    }
+
+    .quantity-selector {
+        display: flex;
+        align-items: center;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        overflow: hidden;
+    }
+
+    .quantity-selector button {
+        background: #f0f0f0;
+        border: none;
+        padding: 8px 12px;
+        cursor: pointer;
+        transition: all 0.2s;
+        position: relative;
+        z-index: 10;
+        font-size: 16px;
+        font-weight: bold;
+    }
+
+    .quantity-selector button:hover {
+        background: #e0e0e0;
+    }
+    
+    .quantity-selector button:active {
+        background: #d0d0d0;
+    }
+
+    .quantity-selector input {
+        border: none;
+        width: 50px;
+        text-align: center;
+        font-weight: 600;
+        padding: 8px 5px;
+    }
+
+    .btn-remove {
+        color: #0066c0;
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 13px;
+        padding: 5px 10px;
+        transition: all 0.2s;
+    }
+
+    .btn-remove:hover {
+        color: var(--flash-orange);
+        text-decoration: underline;
+    }
+
+    .btn-save-later {
+        color: #0066c0;
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 13px;
+        padding: 5px 10px;
+        transition: all 0.2s;
+    }
+
+    .btn-save-later:hover {
+        color: var(--flash-orange);
+        text-decoration: underline;
+    }
+
+    .item-price {
+        font-size: 20px;
+        font-weight: 700;
+        color: var(--flash-dark);
+        text-align: right;
+    }
+
+    .item-price-old {
+        font-size: 14px;
+        color: #666;
+        text-decoration: line-through;
+        display: block;
+        margin-bottom: 3px;
+    }
+
+    .cart-summary {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        padding: 20px;
+        height: fit-content;
+        position: sticky;
+        top: 20px;
+    }
+
+    .summary-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px 0;
+        font-size: 14px;
+    }
+
+    .summary-row.subtotal {
+        border-bottom: 1px solid #e7e7e7;
+        margin-bottom: 10px;
+    }
+
+    .summary-row.total {
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--flash-dark);
+        border-top: 1px solid #e7e7e7;
+        margin-top: 10px;
+        padding-top: 15px;
+    }
+
+    .summary-row.total .price {
+        color: var(--flash-orange);
+    }
+
+    .btn-checkout {
+        width: 100%;
+        padding: 14px;
+        background: var(--flash-orange);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-weight: 700;
+        font-size: 16px;
+        cursor: pointer;
+        margin-top: 15px;
+        transition: all 0.2s;
+    }
+
+    .btn-checkout:hover {
+        background: #e88900;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(255, 153, 0, 0.3);
+    }
+
+    .btn-continue {
+        width: 100%;
+        padding: 12px;
+        background: white;
+        color: var(--flash-dark);
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 14px;
+        cursor: pointer;
+        margin-top: 10px;
+        transition: all 0.2s;
+        text-decoration: none;
+        display: inline-block;
+        text-align: center;
+    }
+
+    .btn-continue:hover {
+        background: #f7f7f7;
+        color: var(--flash-dark);
+    }
+
+    .shipping-info {
+        background: #f0f8ff;
+        padding: 12px;
+        border-radius: 4px;
+        font-size: 13px;
+        color: #0066c0;
+        margin-bottom: 15px;
+    }
+
+    .shipping-info i {
+        margin-right: 8px;
+    }
+
+    .empty-cart {
+        text-align: center;
+        padding: 60px 20px;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .empty-cart i {
+        font-size: 80px;
+        color: #ddd;
+        margin-bottom: 20px;
+    }
+
+    .empty-cart h2 {
+        font-size: 24px;
+        color: var(--flash-dark);
+        margin-bottom: 10px;
+    }
+
+    .empty-cart p {
+        color: #666;
+        margin-bottom: 25px;
+    }
+
+    @media (max-width: 768px) {
+        .cart-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .cart-item {
+            flex-direction: column;
+        }
+
+        .item-image {
+            width: 100%;
+            height: 200px;
+        }
+
+        .item-price {
+            text-align: left;
+        }
+
+        .cart-summary {
+            position: static;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="cart-container">
+    {% if cart_items %}
+    <div class="cart-grid">
+        <div class="cart-items">
+            <div class="cart-header">
+                <h1>Carrito de Compras</h1>
+            </div>
+
+            {% for item in cart_items %}
+            <div class="cart-item">
+                {% if item.product.images.first %}
+                <img src="{{ item.product.images.first.image.url }}" alt="{{ item.product.name }}" class="item-image">
+                {% else %}
+                <img src="{% static 'img/placeholder.jpg' %}" alt="{{ item.product.name }}" class="item-image">
+                {% endif %}
+
+                <div class="item-details">
+                    <a href="{% url 'catalog:product-detail' item.product.id %}" class="item-name">
+                        {{ item.product.name }}
+                    </a>
+                    
+                    {% if item.product.stock > 0 %}
+                    <div class="item-stock">En stock</div>
+                    {% else %}
+                    <div class="item-stock out-of-stock">Agotado</div>
+                    {% endif %}
+
+                    <div class="item-actions">
+                        <div class="quantity-selector">
+                            <button type="button" class="btn-decrease" data-product-id="{{ item.product.id }}" style="min-width: 35px;">−</button>
+                            <input type="number" value="{{ item.quantity }}" min="1" max="{{ item.product.stock }}" id="qty-{{ item.product.id }}" readonly>
+                            <button type="button" class="btn-increase" data-product-id="{{ item.product.id }}" style="min-width: 35px;">+</button>
+                        </div>
+                        <button class="btn-remove" type="button" data-product-id="{{ item.product.id }}">
+                            <i class="fas fa-trash"></i> Eliminar
+                        </button>
+                        <button class="btn-save-later" type="button" data-product-id="{{ item.product.id }}">
+                            <i class="far fa-heart"></i> Guardar
+                        </button>
+                    </div>
+                </div>
+
+                <div class="item-price">
+                    {% if item.product.price < item.product.original_price %}
+                    <span class="item-price-old">${{ item.product.original_price }}</span>
+                    {% endif %}
+                    ${{ item.product.price }}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <aside class="cart-summary">
+            <div class="shipping-info">
+                <i class="fas fa-truck"></i>
+                <strong>Envío GRATIS</strong> en pedidos superiores a $50.000
+            </div>
+
+            <!-- Sección de Cupones -->
+            {% if user.is_authenticated %}
+            <div class="coupon-section" style="margin: 20px 0; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
+                    <i class="fas fa-ticket-alt" style="color: var(--flash-orange);"></i>
+                    <strong style="color: var(--flash-dark);">¿Tienes un cupón?</strong>
+                </div>
+                <!-- Debug: Cupón={{ coupon }}, Descuento={{ discount }} -->
+                
+                {% if coupon %}
+                    <div class="coupon-applied" style="background: #d4edda; padding: 12px; border-radius: 6px; border-left: 4px solid #28a745;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <div style="font-weight: 600; color: #155724; margin-bottom: 4px;">
+                                    <i class="fas fa-check-circle"></i> Cupón Aplicado: {{ coupon.code }}
+                                </div>
+                                <div style="font-size: 13px; color: #155724;">
+                                    Ahorras: ${{ discount|floatformat:0 }} COP
+                                </div>
+                            </div>
+                            <button onclick="removeCoupon()" style="background: none; border: none; color: #dc3545; cursor: pointer; font-size: 18px; padding: 5px;">
+                                <i class="fas fa-times-circle"></i>
+                            </button>
+                        </div>
+                    </div>
+                {% else %}
+                    <div style="display: flex; gap: 8px;">
+                        <input type="text" id="coupon-code" placeholder="Código de cupón" 
+                               style="flex: 1; padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;"
+                               onkeypress="if(event.key==='Enter') applyCoupon()">
+                        <button onclick="applyCoupon()" 
+                                style="padding: 8px 16px; background: var(--flash-orange); color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; white-space: nowrap;">
+                            Aplicar
+                        </button>
+                    </div>
+                    <div id="coupon-message" style="margin-top: 8px; font-size: 13px;"></div>
+                    {% if coupon_error %}
+                    <div style="margin-top: 8px; padding: 8px; background: #fff3cd; border-left: 3px solid #ffc107; border-radius: 4px; font-size: 13px; color: #856404;">
+                        <i class="fas fa-exclamation-triangle"></i> {{ coupon_error }}
+                    </div>
+                    {% endif %}
+                {% endif %}
+                
+                <a href="{% url 'orders:my_coupons' %}" style="display: block; text-align: center; margin-top: 10px; color: var(--flash-orange); text-decoration: none; font-size: 13px;">
+                    <i class="fas fa-gift"></i> Ver cupones disponibles
+                </a>
+            </div>
+            {% endif %}
+
+            <div class="summary-row subtotal">
+                <span>Subtotal ({{ cart_items|length }} producto{{ cart_items|length|pluralize }})</span>
+                <span>${{ subtotal|floatformat:0 }}</span>
+            </div>
+
+            <div class="summary-row">
+                <span>Envío</span>
+                <span>{% if subtotal > 50000 %}GRATIS{% else %}$5.000{% endif %}</span>
+            </div>
+
+            {% if discount > 0 %}
+            <div class="summary-row" style="color: #28a745; font-weight: 600;">
+                <span><i class="fas fa-tag"></i> Descuento</span>
+                <span>-${{ discount|floatformat:0 }}</span>
+            </div>
+            {% endif %}
+
+            <div class="summary-row total">
+                <span>Total</span>
+                <span class="price">${{ total|floatformat:0 }}</span>
+            </div>
+
+            <button class="btn-checkout" id="btn-checkout" data-authenticated="{{ user.is_authenticated|yesno:'true,false' }}">
+                Proceder al Pago
+            </button>
+
+            <a href="{% url 'catalog:product-list' %}" class="btn-continue">
+                Continuar Comprando
+            </a>
+        </aside>
+    </div>
+    {% else %}
+    <div class="empty-cart">
+        <i class="fas fa-shopping-cart"></i>
+        <h2>Tu carrito está vacío</h2>
+        <p>Añade productos para comenzar tu compra</p>
+        <a href="{% url 'catalog:product-list' %}" class="btn-checkout" style="width: auto; padding: 14px 40px; display: inline-block;">
+            Explorar Productos
+        </a>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+// Event listeners usando delegación de eventos
+document.addEventListener('DOMContentLoaded', function() {
+    // Botones de aumentar cantidad
+    document.querySelectorAll('.btn-increase').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const productId = this.dataset.productId;
+            updateQuantity(productId, 1);
+        });
+    });
+    
+    // Botones de disminuir cantidad
+    document.querySelectorAll('.btn-decrease').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const productId = this.dataset.productId;
+            updateQuantity(productId, -1);
+        });
+    });
+    
+    // Botones de eliminar
+    document.querySelectorAll('.btn-remove').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const productId = this.dataset.productId;
+            removeItem(productId);
+        });
+    });
+    
+    // Botones de guardar para después (agregar a favoritos)
+    document.querySelectorAll('.btn-save-later').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const productId = this.dataset.productId;
+            saveForLater(productId);
+        });
+    });
+    
+    // Botón de checkout
+    const checkoutBtn = document.getElementById('btn-checkout');
+    if (checkoutBtn) {
+        checkoutBtn.addEventListener('click', proceedToCheckout);
+    }
+});
+
+function updateQuantity(productId, change) {
+    console.log('=== CLICK EN BOTÓN ===');
+    console.log('Product ID:', productId);
+    console.log('Cambio:', change);
+    
+    const input = document.getElementById('qty-' + productId);
+    if (!input) {
+        console.error('No se encontró el input para el producto', productId);
+        return;
+    }
+    
+    const currentQty = parseInt(input.value);
+    let newQty = currentQty + change;
+    
+    console.log('Cantidad actual:', currentQty);
+    console.log('Nueva cantidad:', newQty);
+    
+    if (newQty < 1) {
+        console.log('Cantidad muy baja, se mantiene en 1');
+        newQty = 1;
+    }
+    
+    const maxQty = parseInt(input.max);
+    if (newQty > maxQty) {
+        console.log('Cantidad excede el máximo:', maxQty);
+        newQty = maxQty;
+    }
+    
+    // Actualizar el input visualmente primero
+    input.value = newQty;
+    console.log('Input actualizado a:', newQty);
+    
+    // Enviar actualización al servidor
+    console.log('Enviando petición al servidor...');
+    fetch('/carrito/actualizar/' + productId + '/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken'),
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: JSON.stringify({ quantity: newQty })
+    })
+    .then(response => {
+        console.log('Respuesta recibida. Status:', response.status);
+        if (!response.ok) {
+            throw new Error('HTTP error! status: ' + response.status);
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('Datos recibidos:', data);
+        if (data.success) {
+            console.log('Éxito! Recargando página...');
+            location.reload();
+        } else {
+            console.error('Error del servidor:', data.message);
+            alert('Error: ' + data.message);
+            input.value = currentQty;
+        }
+    })
+    .catch(error => {
+        console.error('Error en la petición:', error);
+        alert('Error de conexión: ' + error.message);
+        input.value = currentQty;
+    });
+}
+
+function removeItem(productId) {
+    if (confirm('¿Estás seguro de eliminar este producto del carrito?')) {
+        fetch('/carrito/eliminar/' + productId + '/', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            }
+        });
+    }
+}
+
+function saveForLater(productId) {
+    fetch('/cuenta/lista-deseos/agregar/' + productId + '/', {
+        method: 'POST',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRFToken': getCookie('csrftoken')
+        }
+    })
+    .then(response => {
+        if (response.status === 403 || response.status === 302) {
+            alert('Por favor inicia sesión para guardar productos en favoritos');
+            window.location.href = '/cuenta/login/?next=/carrito/';
+            return null;
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data && data.success) {
+            alert('✓ Producto guardado en favoritos');
+            // Opcional: eliminar del carrito después de guardar
+            if (confirm('¿Deseas eliminar este producto del carrito?')) {
+                removeItem(productId);
+            }
+        } else if (data) {
+            alert(data.message || 'Error al guardar en favoritos');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error al guardar en favoritos. Por favor intenta nuevamente.');
+    });
+}
+
+function proceedToCheckout() {
+    const btn = document.getElementById('btn-checkout');
+    const isAuthenticated = btn.dataset.authenticated === 'true';
+    
+    if (isAuthenticated) {
+        window.location.href = '{% url "cart:checkout" %}';
+    } else {
+        window.location.href = '{% url "accounts:login" %}?next={% url "cart:checkout" %}';
+    }
+}
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+// ==================== FUNCIONES DE CUPONES ====================
+
+function applyCoupon() {
+    const input = document.getElementById('coupon-code');
+    const code = input.value.trim().toUpperCase();
+    const messageDiv = document.getElementById('coupon-message');
+    
+    if (!code) {
+        messageDiv.innerHTML = '<span style="color: #dc3545;"><i class="fas fa-exclamation-circle"></i> Ingresa un código de cupón</span>';
+        return;
+    }
+    
+    messageDiv.innerHTML = '<span style="color: #6c757d;"><i class="fas fa-spinner fa-spin"></i> Validando...</span>';
+    
+    fetch('{% url "orders:validate_coupon" %}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: `code=${encodeURIComponent(code)}`
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            messageDiv.innerHTML = `<span style="color: #28a745;"><i class="fas fa-check-circle"></i> ${data.message}</span>`;
+            setTimeout(() => {
+                location.reload();
+            }, 1000);
+        } else {
+            messageDiv.innerHTML = `<span style="color: #dc3545;"><i class="fas fa-times-circle"></i> ${data.message}</span>`;
+            input.value = '';
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        messageDiv.innerHTML = '<span style="color: #dc3545;"><i class="fas fa-exclamation-triangle"></i> Error al validar el cupón</span>';
+    });
+}
+
+function removeCoupon() {
+    if (!confirm('¿Deseas eliminar este cupón?')) {
+        return;
+    }
+    
+    fetch('{% url "orders:remove_coupon" %}', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken')
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error al eliminar el cupón');
+    });
+}
+
+</script>
+{% endblock %}

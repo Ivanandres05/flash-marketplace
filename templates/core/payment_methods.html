@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Métodos de Pago - Flash{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <h1 class="mb-4">Métodos de Pago</h1>
+            
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h2 class="h4 mb-3">Paga como prefieras</h2>
+                    <p>En Flash Marketplace aceptamos diversos métodos de pago para que elijas el que más te convenga. Todos nuestros pagos son seguros y protegidos.</p>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h2 class="h4 mb-3"><i class="fas fa-credit-card me-2 text-primary"></i>Tarjetas de Crédito y Débito</h2>
+                    <p>Aceptamos todas las tarjetas principales:</p>
+                    <div class="d-flex gap-3 mb-3">
+                        <span class="badge bg-secondary">Visa</span>
+                        <span class="badge bg-secondary">Mastercard</span>
+                        <span class="badge bg-secondary">American Express</span>
+                        <span class="badge bg-secondary">Diners Club</span>
+                    </div>
+                    <p class="small text-muted">Tus datos están protegidos con encriptación de nivel bancario. Nunca almacenamos tu información completa de tarjeta.</p>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h2 class="h4 mb-3"><i class="fas fa-university me-2 text-primary"></i>PSE (Pago Seguro en Línea)</h2>
+                    <p>Paga directamente desde tu cuenta bancaria usando PSE. Disponible para todos los bancos colombianos:</p>
+                    <ul>
+                        <li>Bancolombia</li>
+                        <li>Banco de Bogotá</li>
+                        <li>Davivienda</li>
+                        <li>BBVA</li>
+                        <li>Y más...</li>
+                    </ul>
+                    <p class="small text-muted">Proceso seguro y verificado por tu banco. Autorización en tiempo real.</p>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h2 class="h4 mb-3"><i class="fas fa-money-bill-wave me-2 text-primary"></i>Pago Contra Entrega</h2>
+                    <p>Paga en efectivo cuando recibas tu pedido. Disponible en áreas de cobertura seleccionadas.</p>
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Nota:</strong> Verifica la disponibilidad de este método en tu zona durante el proceso de compra.
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-body">
+                    <h2 class="h4 mb-3">Seguridad</h2>
+                    <p>Tu seguridad es nuestra prioridad. Todas las transacciones están protegidas con:</p>
+                    <ul>
+                        <li><strong>Certificado SSL:</strong> Encriptación de datos de extremo a extremo</li>
+                        <li><strong>Tokenización:</strong> Tus datos de tarjeta se convierten en tokens seguros</li>
+                        <li><strong>PCI DSS:</strong> Cumplimos con los estándares de seguridad de la industria</li>
+                        <li><strong>Verificación 3D Secure:</strong> Capa adicional de autenticación para tarjetas</li>
+                    </ul>
+                    <div class="alert alert-success mt-3">
+                        <i class="fas fa-shield-alt me-2"></i>
+                        <strong>100% Seguro</strong> - Si detectamos actividad sospechosa, protegemos tu cuenta automáticamente.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

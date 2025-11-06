@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Noticias - Flash{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <h1 class="mb-4">Noticias Flash</h1>
+            
+            <div class="card mb-4">
+                <div class="card-body">
+                    <small class="text-muted">30 de Octubre, 2025</small>
+                    <h2 class="h4 mt-2 mb-3">Flash Marketplace alcanza 10,000 vendedores activos</h2>
+                    <p>Nos complace anunciar que hemos alcanzado un hito importante: 10,000 vendedores activos en nuestra plataforma. Este logro demuestra la confianza que los emprendedores depositan en Flash como su plataforma de ventas en línea.</p>
+                    <a href="#" class="btn btn-outline-primary btn-sm">Leer más</a>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-body">
+                    <small class="text-muted">25 de Octubre, 2025</small>
+                    <h2 class="h4 mt-2 mb-3">Nuevas funcionalidades para vendedores</h2>
+                    <p>Hemos lanzado nuevas herramientas para vendedores, incluyendo análisis avanzados de ventas, gestión de inventario mejorada y opciones de promoción más flexibles.</p>
+                    <a href="#" class="btn btn-outline-primary btn-sm">Leer más</a>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-body">
+                    <small class="text-muted">20 de Octubre, 2025</small>
+                    <h2 class="h4 mt-2 mb-3">Flash expande sus métodos de pago</h2>
+                    <p>Ahora puedes pagar con PSE, tarjetas de crédito de todos los bancos y efectivo contra entrega. Seguimos trabajando para ofrecerte más opciones de pago seguras y convenientes.</p>
+                    <a href="#" class="btn btn-outline-primary btn-sm">Leer más</a>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-body">
+                    <small class="text-muted">15 de Octubre, 2025</small>
+                    <h2 class="h4 mt-2 mb-3">Programa de Afiliados Flash</h2>
+                    <p>Lanzamos nuestro nuevo programa de afiliados donde puedes ganar comisiones por cada venta que generes. Únete y empieza a ganar dinero compartiendo productos de Flash.</p>
+                    <a href="{% url 'core:affiliate' %}" class="btn btn-outline-primary btn-sm">Más información</a>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-body">
+                    <small class="text-muted">10 de Octubre, 2025</small>
+                    <h2 class="h4 mt-2 mb-3">Mejoras en la experiencia de compra</h2>
+                    <p>Hemos renovado nuestra interfaz de usuario para hacer que tu experiencia de compra sea más rápida, intuitiva y agradable. Explora las nuevas funcionalidades y cuéntanos qué te parecen.</p>
+                    <a href="#" class="btn btn-outline-primary btn-sm">Leer más</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

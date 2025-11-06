@@ -1,0 +1,179 @@
+{% extends 'base.html' %}
+
+{% block title %}Mis Cupones - Flash Marketplace{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3">
+            <div class="list-group">
+                <a href="{% url 'accounts:profile' %}" class="list-group-item list-group-item-action">
+                    <i class="fas fa-user"></i> Mi Cuenta
+                </a>
+                <a href="{% url 'orders:my_coupons' %}" class="list-group-item list-group-item-action active">
+                    <i class="fas fa-ticket-alt"></i> Mis Cupones
+                </a>
+            </div>
+        </div>
+
+        <!-- Contenido Principal -->
+        <div class="col-md-9">
+            <h2 class="mb-4">
+                <i class="fas fa-ticket-alt text-primary"></i> Cupones Disponibles
+            </h2>
+
+            {% if coupons %}
+                <div class="row">
+                    {% for item in coupons %}
+                    <div class="col-md-6 mb-4">
+                        <div class="card h-100 {% if not item.can_use %}opacity-50{% endif %}" style="border-left: 4px solid {% if item.can_use %}#28a745{% else %}#dc3545{% endif %};">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start mb-3">
+                                    <div>
+                                        <h5 class="card-title mb-1">
+                                            <span class="badge bg-primary" style="font-size: 1.2rem; cursor: pointer;" 
+                                                  onclick="copyCouponCode('{{ item.coupon.code }}')" 
+                                                  title="Click para copiar">
+                                                {{ item.coupon.code }}
+                                            </span>
+                                        </h5>
+                                        {% if item.coupon.discount_type == 'percentage' %}
+                                            <h3 class="text-success mb-0">{{ item.coupon.discount_value }}% OFF</h3>
+                                        {% else %}
+                                            <h3 class="text-success mb-0">${{ item.coupon.discount_value|floatformat:0 }} COP OFF</h3>
+                                        {% endif %}
+                                    </div>
+                                    {% if item.can_use %}
+                                        <span class="badge bg-success">Disponible</span>
+                                    {% else %}
+                                        <span class="badge bg-danger">No disponible</span>
+                                    {% endif %}
+                                </div>
+
+                                <p class="card-text text-muted mb-3">
+                                    {{ item.coupon.description }}
+                                </p>
+
+                                <div class="small text-muted">
+                                    <div class="mb-1">
+                                        <i class="fas fa-calendar-alt"></i>
+                                        Válido hasta: <strong>{{ item.coupon.valid_to|date:"d/m/Y" }}</strong>
+                                    </div>
+                                    {% if item.coupon.min_purchase_amount > 0 %}
+                                    <div class="mb-1">
+                                        <i class="fas fa-shopping-cart"></i>
+                                        Compra mínima: <strong>${{ item.coupon.min_purchase_amount|floatformat:0 }} COP</strong>
+                                    </div>
+                                    {% endif %}
+                                    {% if item.coupon.usage_limit %}
+                                    <div class="mb-1">
+                                        <i class="fas fa-users"></i>
+                                        Usos restantes: <strong>{{ item.coupon.usage_limit|add:"-"|add:item.coupon.times_used }}</strong>
+                                    </div>
+                                    {% endif %}
+                                    <div>
+                                        <i class="fas fa-user"></i>
+                                        Límite por usuario: <strong>{{ item.coupon.usage_limit_per_user }}</strong>
+                                    </div>
+                                </div>
+
+                                {% if not item.can_use %}
+                                    <div class="alert alert-warning mt-3 mb-0 py-2 small">
+                                        <i class="fas fa-exclamation-triangle"></i> {{ item.message }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i>
+                    No hay cupones disponibles en este momento.
+                </div>
+            {% endif %}
+
+            <!-- Cupones Usados -->
+            {% if used_coupons %}
+                <hr class="my-5">
+                <h3 class="mb-4">
+                    <i class="fas fa-history text-secondary"></i> Cupones Utilizados
+                </h3>
+
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Código</th>
+                                <th>Pedido</th>
+                                <th>Fecha de Uso</th>
+                                <th>Descuento</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for usage in used_coupons %}
+                            <tr>
+                                <td><span class="badge bg-secondary">{{ usage.coupon.code }}</span></td>
+                                <td>
+                                    {% if usage.order %}
+                                        <a href="#">#{{ usage.order.id }}</a>
+                                    {% else %}
+                                        -
+                                    {% endif %}
+                                </td>
+                                <td>{{ usage.used_at|date:"d/m/Y H:i" }}</td>
+                                <td>
+                                    {% if usage.coupon.discount_type == 'percentage' %}
+                                        {{ usage.coupon.discount_value }}%
+                                    {% else %}
+                                        ${{ usage.coupon.discount_value|floatformat:0 }} COP
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+function copyCouponCode(code) {
+    navigator.clipboard.writeText(code).then(function() {
+        // Mostrar notificación
+        const toast = document.createElement('div');
+        toast.className = 'toast position-fixed bottom-0 end-0 m-3';
+        toast.setAttribute('role', 'alert');
+        toast.innerHTML = `
+            <div class="toast-body bg-success text-white">
+                <i class="fas fa-check-circle"></i> Código copiado: <strong>${code}</strong>
+            </div>
+        `;
+        document.body.appendChild(toast);
+        
+        setTimeout(() => {
+            toast.remove();
+        }, 2000);
+    });
+}
+</script>
+
+<style>
+.opacity-50 {
+    opacity: 0.6;
+}
+.card {
+    transition: transform 0.2s;
+}
+.card:hover {
+    transform: translateY(-5px);
+}
+.toast {
+    z-index: 9999;
+}
+</style>
+{% endblock %}

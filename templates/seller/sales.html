@@ -1,0 +1,180 @@
+{% extends "base.html" %}
+{% load static %}
+{% load custom_filters %}
+
+{% block title %}Ventas - {{ seller.store_name }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3 col-lg-2 bg-light border-end">
+            <div class="py-3">
+                <h5 class="px-3 mb-3">
+                    <i class="fas fa-store text-primary"></i> {{ seller.store_name }}
+                </h5>
+                <nav class="nav flex-column">
+                    <a class="nav-link" href="{% url 'seller:dashboard' %}">
+                        <i class="fas fa-chart-line me-2"></i>Dashboard
+                    </a>
+                    <a class="nav-link" href="{% url 'seller:products' %}">
+                        <i class="fas fa-box me-2"></i>Productos
+                    </a>
+                    <a class="nav-link active" href="{% url 'seller:sales' %}">
+                        <i class="fas fa-dollar-sign me-2"></i>Ventas
+                    </a>
+                    <hr>
+                    <a class="nav-link" href="{% url 'core:home' %}">
+                        <i class="fas fa-home me-2"></i>Volver al Marketplace
+                    </a>
+                </nav>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-9 col-lg-10">
+            <div class="container-fluid">
+                <h2 class="mb-4">Historial de Ventas</h2>
+
+                <!-- Summary Cards -->
+                <div class="row mb-4">
+                    <div class="col-md-4 mb-3">
+                        <div class="card bg-success text-white">
+                            <div class="card-body">
+                                <h6 class="card-title text-white-50">Total Ventas</h6>
+                                <h3 class="mb-0">{{ total_sales }} unidades</h3>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                        <div class="card bg-primary text-white">
+                            <div class="card-body">
+                                <h6 class="card-title text-white-50">Ingresos Totales</h6>
+                                <h3 class="mb-0">${{ total_revenue|floatformat:2 }}</h3>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                        <div class="card bg-info text-white">
+                            <div class="card-body">
+                                <h6 class="card-title text-white-50">Ingresos Netos (90%)</h6>
+                                <h3 class="mb-0">${{ total_revenue|floatformat:2|add:"-0"|multiply:"0.9"|floatformat:2 }}</h3>
+                                <small class="text-white-50">Después de comisión del 10%</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sales Table -->
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Detalle de Ventas</h5>
+                    </div>
+                    <div class="card-body">
+                        {% if order_items %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Fecha</th>
+                                        <th>Orden</th>
+                                        <th>Producto</th>
+                                        <th>Cantidad</th>
+                                        <th>Precio Unitario</th>
+                                        <th>Subtotal</th>
+                                        <th>Comisión (10%)</th>
+                                        <th>Tu Ganancia</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for item in order_items %}
+                                    {% with subtotal=item.product.price|multiply:item.quantity %}
+                                    {% with commission=subtotal|multiply:0.1 %}
+                                    {% with net=subtotal|add:commission|multiply:-1|add:subtotal %}
+                                    <tr>
+                                        <td>{{ item.order.created_at|date:"d/m/Y H:i" }}</td>
+                                        <td>
+                                            <span class="badge bg-secondary">#{{ item.order.id }}</span>
+                                        </td>
+                                        <td>
+                                            <a href="{% url 'catalog:product-detail' item.product.slug %}" target="_blank">
+                                                {{ item.product.name }}
+                                            </a>
+                                        </td>
+                                        <td>{{ item.quantity }}</td>
+                                        <td>${{ item.product.price|floatformat:2 }}</td>
+                                        <td><strong>${{ subtotal|floatformat:2 }}</strong></td>
+                                        <td class="text-danger">-${{ commission|floatformat:2 }}</td>
+                                        <td class="text-success"><strong>${{ net|floatformat:2 }}</strong></td>
+                                    </tr>
+                                    {% endwith %}
+                                    {% endwith %}
+                                    {% endwith %}
+                                    {% endfor %}
+                                </tbody>
+                                <tfoot>
+                                    <tr class="table-light">
+                                        <th colspan="5" class="text-end">TOTALES:</th>
+                                        <th>${{ total_revenue|floatformat:2 }}</th>
+                                        <th class="text-danger">-${{ total_revenue|multiply:0.1|floatformat:2 }}</th>
+                                        <th class="text-success">${{ total_revenue|multiply:0.9|floatformat:2 }}</th>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                        {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-receipt fa-4x text-muted mb-3"></i>
+                            <h4>No has realizado ventas aún</h4>
+                            <p class="text-muted">Tus ventas aparecerán aquí cuando los clientes compren tus productos</p>
+                            <a href="{% url 'seller:products' %}" class="btn btn-primary mt-3">
+                                <i class="fas fa-box me-2"></i>Ver Mis Productos
+                            </a>
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Debug Information -->
+                        {% if debug_info %}
+                        <div class="mt-4">
+                            <h6 class="text-muted">Información de Depuración (Todas las órdenes)</h6>
+                            <div class="table-responsive">
+                                <table class="table table-sm table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Orden</th>
+                                            <th>Producto</th>
+                                            <th>Vendedor del Producto</th>
+                                            <th>Usuario Actual</th>
+                                            <th>¿Coincide?</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for info in debug_info %}
+                                        <tr class="{% if info.match %}table-success{% endif %}">
+                                            <td>#{{ info.order_id }}</td>
+                                            <td>{{ info.product }}</td>
+                                            <td>{{ info.seller }}</td>
+                                            <td>{{ info.current_user }}</td>
+                                            <td>
+                                                {% if info.match %}
+                                                <span class="badge bg-success">SÍ</span>
+                                                {% else %}
+                                                <span class="badge bg-danger">NO</span>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

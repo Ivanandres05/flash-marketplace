@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Política de Devoluciones - Flash{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <h1 class="mb-4">Política de Devoluciones</h1>
+            
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h2 class="h4 mb-3">Tu satisfacción es nuestra prioridad</h2>
+                    <p>En Flash Marketplace queremos que estés completamente satisfecho con tu compra. Si por alguna razón no lo estás, aceptamos devoluciones dentro de los primeros 30 días.</p>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h2 class="h4 mb-3">Condiciones para Devoluciones</h2>
+                    <ul>
+                        <li><strong>Plazo:</strong> 30 días desde la fecha de entrega</li>
+                        <li><strong>Estado del producto:</strong> Debe estar sin usar, en su empaque original</li>
+                        <li><strong>Etiquetas:</strong> Deben estar intactas y adheridas al producto</li>
+                        <li><strong>Accesorios:</strong> Todos los accesorios y documentación incluidos</li>
+                        <li><strong>Factura:</strong> Debes presentar la factura o comprobante de compra</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h2 class="h4 mb-3">Productos No Retornables</h2>
+                    <p>Por razones de higiene y seguridad, los siguientes productos no pueden ser devueltos:</p>
+                    <ul>
+                        <li>Productos de cuidado personal (cosméticos, productos de higiene)</li>
+                        <li>Ropa interior y trajes de baño</li>
+                        <li>Productos perecederos</li>
+                        <li>Productos digitales descargables</li>
+                        <li>Tarjetas de regalo</li>
+                        <li>Productos personalizados o hechos a medida</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h2 class="h4 mb-3">Cómo Solicitar una Devolución</h2>
+                    <div class="row">
+                        <div class="col-md-3 text-center mb-3">
+                            <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 50px; height: 50px;">
+                                <strong>1</strong>
+                            </div>
+                            <p class="small">Inicia sesión en tu cuenta</p>
+                        </div>
+                        <div class="col-md-3 text-center mb-3">
+                            <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 50px; height: 50px;">
+                                <strong>2</strong>
+                            </div>
+                            <p class="small">Ve a "Mis Pedidos"</p>
+                        </div>
+                        <div class="col-md-3 text-center mb-3">
+                            <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 50px; height: 50px;">
+                                <strong>3</strong>
+                            </div>
+                            <p class="small">Selecciona "Solicitar Devolución"</p>
+                        </div>
+                        <div class="col-md-3 text-center mb-3">
+                            <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 50px; height: 50px;">
+                                <strong>4</strong>
+                            </div>
+                            <p class="small">Espera la aprobación</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h2 class="h4 mb-3">Reembolsos</h2>
+                    <p>Una vez que recibamos y aprobemos tu devolución:</p>
+                    <ul>
+                        <li>Procesaremos tu reembolso dentro de 5-7 días hábiles</li>
+                        <li>El reembolso se realizará al método de pago original</li>
+                        <li>Los costos de envío originales no son reembolsables</li>
+                        <li>Recibirás un email de confirmación cuando se procese el reembolso</li>
+                    </ul>
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Nota:</strong> El tiempo que tarda el reembolso en reflejarse en tu cuenta depende de tu banco o emisor de tarjeta.
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h2 class="h4 mb-3">Cambios</h2>
+                    <p>Si deseas cambiar un producto por otro (diferente talla, color, etc.):</p>
+                    <ol>
+                        <li>Solicita la devolución del producto original</li>
+                        <li>Realiza un nuevo pedido con el producto correcto</li>
+                        <li>Una vez aprobada la devolución, procesaremos el reembolso</li>
+                    </ol>
+                    <p class="small text-muted">Esto asegura que recibas el producto que deseas lo más rápido posible.</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-body">
+                    <h2 class="h4 mb-3">Productos Defectuosos o Dañados</h2>
+                    <p>Si recibes un producto defectuoso o dañado:</p>
+                    <ul>
+                        <li>Contáctanos dentro de las 48 horas de recibir el producto</li>
+                        <li>Proporciona fotos del producto y del empaque</li>
+                        <li>Procesaremos un reembolso completo o envío de reemplazo sin costo</li>
+                        <li>Cubriremos todos los costos de envío</li>
+                    </ul>
+                    <div class="text-center mt-4">
+                        <a href="{% url 'core:customer-service' %}" class="btn btn-primary">Contactar Servicio al Cliente</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

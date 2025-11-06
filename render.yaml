@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: flash-marketplace
+    runtime: docker
+    plan: free
+    branch: main
+    healthCheckPath: /
+    envVars:
+      - key: DJANGO_SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: False
+      - key: DJANGO_SETTINGS_MODULE
+        value: flash.settings.prod
+      - key: PYTHON_VERSION
+        value: 3.13.7
+      - key: DATABASE_URL
+        sync: false  # Debe configurarse manualmente con la URL de Neon
+      - key: ALLOWED_HOSTS
+        sync: false  # Debe configurarse manualmente

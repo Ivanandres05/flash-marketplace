@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Confirmar Eliminación - Flash Marketplace{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-body p-4 text-center">
+                    <i class="fas fa-exclamation-triangle fa-4x text-danger mb-3"></i>
+                    <h2 class="card-title mb-3">Confirmar Eliminación</h2>
+                    <p class="lead">¿Estás seguro de que deseas eliminar este producto?</p>
+                    
+                    <div class="alert alert-warning text-start">
+                        <strong>Producto:</strong> {{ product.name }}<br>
+                        <strong>Precio:</strong> ${{ product.price }}<br>
+                        <strong>Stock:</strong> {{ product.stock }}
+                    </div>
+
+                    <p class="text-danger">
+                        <i class="fas fa-warning"></i>
+                        <strong>Esta acción no se puede deshacer.</strong>
+                    </p>
+
+                    <form method="post" class="d-inline">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger btn-lg me-2">
+                            <i class="fas fa-trash me-2"></i>Sí, Eliminar
+                        </button>
+                    </form>
+                    <a href="{% url 'seller:products' %}" class="btn btn-secondary btn-lg">
+                        <i class="fas fa-times me-2"></i>Cancelar
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,1 @@
+# Este archivo indica que el directorio catalog es un paquete de Python.

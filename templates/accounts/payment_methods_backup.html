@@ -1,0 +1,719 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Métodos de Pago - Flash Marketplace{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Estilos modernos para Métodos de Pago */
+    .account-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 2rem 1rem;
+        background-color: #f5f5f5;
+    }
+
+    /* Sidebar */
+    .account-sidebar {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        position: sticky;
+        top: 20px;
+    }
+
+    .sidebar-header {
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid #f0f0f0;
+    }
+
+    .sidebar-header h5 {
+        color: #232f3e;
+        font-weight: 700;
+        font-size: 1.25rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .sidebar-header p {
+        color: #666;
+        font-size: 0.875rem;
+        margin: 0;
+    }
+
+    .sidebar-nav {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .sidebar-nav-item {
+        margin-bottom: 0.5rem;
+    }
+
+    .sidebar-nav-link {
+        display: flex;
+        align-items: center;
+        padding: 0.875rem 1rem;
+        color: #333;
+        text-decoration: none;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        font-weight: 500;
+    }
+
+    .sidebar-nav-link i {
+        width: 24px;
+        font-size: 1.1rem;
+        margin-right: 12px;
+        color: #666;
+    }
+
+    .sidebar-nav-link:hover {
+        background-color: #f8f9fa;
+        color: #FF9900;
+        transform: translateX(5px);
+    }
+
+    .sidebar-nav-link:hover i {
+        color: #FF9900;
+    }
+
+    .sidebar-nav-link.active {
+        background: linear-gradient(135deg, #FF9900 0%, #ff8000 100%);
+        color: white;
+        font-weight: 600;
+    }
+
+    .sidebar-nav-link.active i {
+        color: white;
+    }
+
+    .sidebar-logout {
+        margin-top: 1.5rem;
+        padding-top: 1.5rem;
+        border-top: 2px solid #f0f0f0;
+    }
+
+    .sidebar-logout .sidebar-nav-link {
+        color: #dc3545;
+        background-color: #fff5f5;
+    }
+
+    .sidebar-logout .sidebar-nav-link:hover {
+        background-color: #dc3545;
+        color: white;
+    }
+
+    .sidebar-logout .sidebar-nav-link:hover i {
+        color: white;
+    }
+
+    /* Main Content */
+    .payment-content {
+        background: white;
+        border-radius: 12px;
+        padding: 2rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    .content-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 2px solid #f0f0f0;
+    }
+
+    .content-header h2 {
+        color: #232f3e;
+        font-weight: 700;
+        font-size: 1.75rem;
+        margin: 0;
+    }
+
+    .btn-add-card {
+        background: #FF9900;
+        color: white;
+        border: none;
+        padding: 0.875rem 2rem;
+        border-radius: 8px;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(255, 153, 0, 0.3);
+    }
+
+    .btn-add-card:hover {
+        background: #ff8000;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(255, 153, 0, 0.4);
+    }
+
+    .btn-add-card i {
+        font-size: 1.1rem;
+    }
+
+    /* Alert Info */
+    .info-alert {
+        background: linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%);
+        border-left: 4px solid #0c5460;
+        padding: 1.25rem;
+        border-radius: 8px;
+        margin-bottom: 2rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .info-alert i {
+        font-size: 1.5rem;
+        color: #0c5460;
+    }
+
+    .info-alert p {
+        margin: 0;
+        color: #0c5460;
+        font-weight: 500;
+    }
+
+    /* Payment Cards */
+    .payment-cards-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .payment-card {
+        background: white;
+        border: 2px solid #e0e0e0;
+        border-radius: 12px;
+        padding: 1.75rem;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .payment-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: linear-gradient(90deg, #FF9900 0%, #ff8000 100%);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .payment-card:hover {
+        border-color: #FF9900;
+        box-shadow: 0 8px 24px rgba(255, 153, 0, 0.15);
+        transform: translateY(-4px);
+    }
+
+    .payment-card:hover::before {
+        opacity: 1;
+    }
+
+    .card-header-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .card-brand {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .card-brand-logo {
+        width: 50px;
+        height: 32px;
+        background: #1a1f71;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 6px;
+        font-weight: 700;
+        font-size: 0.875rem;
+    }
+
+    .card-brand h4 {
+        margin: 0;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #232f3e;
+    }
+
+    .btn-delete-card {
+        background: transparent;
+        border: none;
+        color: #dc3545;
+        padding: 0.5rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border-radius: 6px;
+    }
+
+    .btn-delete-card:hover {
+        background: #dc3545;
+        color: white;
+        transform: scale(1.1);
+    }
+
+    .card-number {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #232f3e;
+        letter-spacing: 2px;
+        margin-bottom: 1.25rem;
+        font-family: 'Courier New', monospace;
+    }
+
+    .card-details {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-top: 1rem;
+        border-top: 1px solid #f0f0f0;
+    }
+
+    .card-expiry {
+        color: #666;
+        font-size: 0.875rem;
+    }
+
+    .card-badge {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
+        padding: 0.375rem 0.875rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+    }
+
+    .empty-state-icon {
+        font-size: 4rem;
+        color: #ddd;
+        margin-bottom: 1.5rem;
+    }
+
+    .empty-state h4 {
+        color: #666;
+        font-weight: 600;
+        margin-bottom: 1rem;
+    }
+
+    .empty-state p {
+        color: #999;
+        margin-bottom: 2rem;
+    }
+
+    /* Footer Note */
+    .payment-footer {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-top: 2rem;
+    }
+
+    .payment-footer h6 {
+        color: #232f3e;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .payment-footer h6 i {
+        color: #FF9900;
+    }
+
+    .payment-footer p {
+        color: #666;
+        font-size: 0.875rem;
+        margin: 0.5rem 0;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .payment-cards-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .content-header {
+            flex-direction: column;
+            gap: 1rem;
+            align-items: flex-start;
+        }
+
+        .btn-add-card {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="account-container">
+    <div class="row g-4">
+        <!-- Sidebar -->
+        <div class="col-lg-3">
+            <div class="account-sidebar">
+                <div class="sidebar-header">
+                    <h5>Hola, {{ user.first_name|default:user.username }}</h5>
+                    <p>Gestiona tu cuenta y revisa tus pedidos</p>
+                </div>
+                
+                <ul class="sidebar-nav">
+                    <li class="sidebar-nav-item">
+                        <a href="{% url 'accounts:profile' %}" class="sidebar-nav-link">
+                            <i class="fas fa-user"></i>
+                            Mi Perfil
+                        </a>
+                    </li>
+                    <li class="sidebar-nav-item">
+                        <a href="{% url 'accounts:orders' %}" class="sidebar-nav-link">
+                            <i class="fas fa-box"></i>
+                            Mis Pedidos
+                        </a>
+                    </li>
+                    <li class="sidebar-nav-item">
+                        <a href="{% url 'accounts:addresses' %}" class="sidebar-nav-link">
+                            <i class="fas fa-map-marker-alt"></i>
+                            Direcciones
+                        </a>
+                    </li>
+                    <li class="sidebar-nav-item">
+                        <a href="{% url 'accounts:payment-methods' %}" class="sidebar-nav-link active">
+                            <i class="fas fa-credit-card"></i>
+                            Métodos de Pago
+                        </a>
+                    </li>
+                    <li class="sidebar-nav-item">
+                        <a href="{% url 'accounts:wishlist' %}" class="sidebar-nav-link">
+                            <i class="fas fa-heart"></i>
+                            Lista de Deseos
+                        </a>
+                    </li>
+                    <li class="sidebar-nav-item">
+                        <a href="{% url 'accounts:my-reviews' %}" class="sidebar-nav-link">
+                            <i class="fas fa-star"></i>
+                            Mis Reseñas
+                        </a>
+                    </li>
+                    <li class="sidebar-nav-item">
+                        <a href="{% url 'accounts:settings' %}" class="sidebar-nav-link">
+                            <i class="fas fa-cog"></i>
+                            Configuración
+                        </a>
+                    </li>
+                </ul>
+
+                <div class="sidebar-logout">
+                    <a href="{% url 'accounts:logout' %}" class="sidebar-nav-link">
+                        <i class="fas fa-sign-out-alt"></i>
+                        Cerrar Sesión
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-lg-9">
+            <div class="payment-content">
+                <!-- Header -->
+                <div class="content-header">
+                    <h2>Métodos de Pago</h2>
+                    <button class="btn-add-card" onclick="alert('Funcionalidad de agregar tarjeta próximamente')">
+                        <i class="fas fa-plus"></i>
+                        Agregar Tarjeta
+                    </button>
+                </div>
+
+                <!-- Info Alert -->
+                <div class="info-alert">
+                    <i class="fas fa-shield-alt"></i>
+                    <p>Tus datos de pago están seguros y encriptados. Nunca compartiremos tu información.</p>
+                </div>
+
+                <!-- Payment Cards -->
+                {% if payment_methods %}
+                <div class="payment-cards-grid">
+                    {% for method in payment_methods %}
+                    <div class="payment-card">
+                        <div class="card-header-row">
+                            <div class="card-brand">
+                                <div class="card-brand-logo">
+                                    {% if method.card_type == 'visa' %}VISA{% elif method.card_type == 'mastercard' %}MC{% else %}CARD{% endif %}
+                                </div>
+                                <h4>{{ method.get_card_type_display|default:"Tarjeta" }}</h4>
+                            </div>
+                            <button class="btn-delete-card" onclick="deleteCard({{ method.id }})">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </div>
+
+                        <div class="card-number">
+                            •••• •••• •••• {{ method.last_four_digits }}
+                        </div>
+
+                        <div class="card-details">
+                            <div class="card-expiry">
+                                Vence {{ method.expiry_month }}/{{ method.expiry_year }}
+                            </div>
+                            {% if method.is_default %}
+                            <span class="card-badge">Predeterminada</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <!-- Empty State -->
+                <div class="empty-state">
+                    <div class="empty-state-icon">
+                        <i class="far fa-credit-card"></i>
+                    </div>
+                    <h4>Gestiona tus métodos de pago</h4>
+                    <p>Aquí podrás agregar y administrar tus tarjetas de crédito/débito</p>
+                    <button class="btn-add-card" onclick="alert('Funcionalidad de agregar tarjeta próximamente')">
+                        <i class="fas fa-plus"></i>
+                        Agregar Primera Tarjeta
+                    </button>
+                </div>
+                {% endif %}
+
+                <!-- Footer Info -->
+                <div class="payment-footer">
+                    <h6>
+                        <i class="fas fa-info-circle"></i>
+                        Información Importante
+                    </h6>
+                    <p><strong>✓</strong> Puedes agregar y gestionar tus tarjetas de crédito/débito aquí.</p>
+                    <p><strong>✓</strong> La tarjeta predeterminada se usará automáticamente en el checkout.</p>
+                    <p><strong>✓</strong> Tus datos están protegidos con encriptación de nivel bancario.</p>
+                    <p><strong>✓</strong> Puedes eliminar cualquier tarjeta en cualquier momento.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function deleteCard(cardId) {
+    if (confirm('¿Estás seguro de que deseas eliminar esta tarjeta?')) {
+        fetch(`/cuenta/metodos-pago/eliminar/${cardId}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert(data.message || 'Error al eliminar la tarjeta');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Ocurrió un error al eliminar la tarjeta');
+        });
+    }
+}
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+</script>
+{% endblock %}
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addCardModal">
+                    <i class="fas fa-plus me-2"></i>Agregar Tarjeta
+                </button>
+            </div>
+
+            {% if messages %}
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                {% endfor %}
+            {% endif %}
+
+            <div class="alert alert-info">
+                <i class="fas fa-shield-alt me-2"></i>
+                Tus datos de pago están seguros y encriptados. Nunca compartiremos tu información.
+            </div>
+
+            <div class="row">
+                {% if payment_methods %}
+                    {% for method in payment_methods %}
+                    <div class="col-md-6 mb-3">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <h5 class="card-title mb-1">
+                                            {% if method.card_type == 'visa' %}
+                                                <i class="fab fa-cc-visa fa-2x text-primary me-2"></i>
+                                            {% elif method.card_type == 'mastercard' %}
+                                                <i class="fab fa-cc-mastercard fa-2x text-warning me-2"></i>
+                                            {% elif method.card_type == 'amex' %}
+                                                <i class="fab fa-cc-amex fa-2x text-info me-2"></i>
+                                            {% else %}
+                                                <i class="fas fa-credit-card fa-2x text-secondary me-2"></i>
+                                            {% endif %}
+                                            {{ method.get_card_type_display }}
+                                        </h5>
+                                        <p class="text-muted mb-1">**** **** **** {{ method.card_number }}</p>
+                                        <p class="mb-0"><small class="text-muted">{{ method.card_holder }}</small></p>
+                                        <small class="text-muted">Vence {{ method.expiry_month }}/{{ method.expiry_year }}</small>
+                                        <br>
+                                        {% if method.is_default %}
+                                            <span class="badge bg-success mt-2">Predeterminada</span>
+                                        {% else %}
+                                            <form method="post" action="{% url 'accounts:set-default-payment' method.id %}" class="d-inline">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-sm btn-outline-primary mt-2">
+                                                    Establecer como predeterminada
+                                                </button>
+                                            </form>
+                                        {% endif %}
+                                    </div>
+                                    <div>
+                                        <form method="post" action="{% url 'accounts:delete-payment-method' method.id %}" class="d-inline" onsubmit="return confirm('¿Estás seguro de eliminar esta tarjeta?');">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="col-12">
+                        <div class="text-center py-5">
+                            <i class="fas fa-credit-card fa-4x text-muted mb-3"></i>
+                            <h4>No tienes tarjetas guardadas</h4>
+                            <p class="text-muted">Agrega una tarjeta para realizar compras más rápido</p>
+                            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addCardModal">
+                                <i class="fas fa-plus me-2"></i>Agregar Mi Primera Tarjeta
+                            </button>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+            
+            <p class="text-muted mt-3">
+                <i class="fas fa-info-circle me-1"></i>
+                Puedes agregar y gestionar tus tarjetas de crédito/débito aquí. La tarjeta predeterminada se usará automáticamente en el checkout.
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para agregar tarjeta -->
+<div class="modal fade" id="addCardModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post" action="{% url 'accounts:add-payment-method' %}">
+                {% csrf_token %}
+                <div class="modal-header">
+                    <h5 class="modal-title">Agregar Tarjeta</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Tipo de Tarjeta</label>
+                        <select name="card_type" class="form-select" required>
+                            <option value="visa">Visa</option>
+                            <option value="mastercard">Mastercard</option>
+                            <option value="amex">American Express</option>
+                            <option value="other">Otra</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Número de Tarjeta</label>
+                        <input type="text" name="card_number" class="form-control" placeholder="1234 5678 9012 3456" maxlength="19" required>
+                        <small class="text-muted">Solo se guardarán los últimos 4 dígitos</small>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Mes de Vencimiento</label>
+                            <select name="expiry_month" class="form-select" required>
+                                {% for month in "123456789012"|make_list %}
+                                <option value="0{{ forloop.counter }}">{{ forloop.counter|stringformat:"02d" }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Año de Vencimiento</label>
+                            <select name="expiry_year" class="form-select" required>
+                                <option value="25">25</option>
+                                <option value="26">26</option>
+                                <option value="27">27</option>
+                                <option value="28">28</option>
+                                <option value="29">29</option>
+                                <option value="30">30</option>
+                                <option value="31">31</option>
+                                <option value="32">32</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Nombre del Titular</label>
+                        <input type="text" name="card_holder" class="form-control" placeholder="Como aparece en la tarjeta" required>
+                    </div>
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" name="is_default" id="setDefault">
+                        <label class="form-check-label" for="setDefault">
+                            Establecer como tarjeta predeterminada
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar Tarjeta</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Lista de Deseos - Flash Marketplace{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Hola, {{ user.first_name|default:user.username }}</h5>
+                    <p class="text-muted small">Gestiona tu cuenta y revisa tus pedidos</p>
+                    <hr>
+                    <nav class="nav flex-column">
+                        <a class="nav-link" href="{% url 'accounts:profile' %}">
+                            <i class="fas fa-user me-2"></i>Mi Perfil
+                        </a>
+                        <a class="nav-link" href="{% url 'accounts:orders' %}">
+                            <i class="fas fa-box me-2"></i>Mis Pedidos
+                        </a>
+                        <a class="nav-link" href="{% url 'accounts:addresses' %}">
+                            <i class="fas fa-map-marker-alt me-2"></i>Direcciones
+                        </a>
+                        <a class="nav-link" href="{% url 'accounts:payment-methods' %}">
+                            <i class="fas fa-credit-card me-2"></i>Métodos de Pago
+                        </a>
+                        <a class="nav-link active" href="{% url 'accounts:wishlist' %}">
+                            <i class="fas fa-heart me-2"></i>Lista de Deseos
+                        </a>
+                        <a class="nav-link" href="{% url 'accounts:my-reviews' %}">
+                            <i class="fas fa-star me-2"></i>Mis Reseñas
+                        </a>
+                        <a class="nav-link" href="{% url 'accounts:settings' %}">
+                            <i class="fas fa-cog me-2"></i>Configuración
+                        </a>
+                        <hr>
+                        <a class="nav-link text-danger" href="{% url 'accounts:logout' %}">
+                            <i class="fas fa-sign-out-alt me-2"></i>Cerrar Sesión
+                        </a>
+                    </nav>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-9">
+            <h2 class="mb-4">Mi Lista de Deseos</h2>
+
+            {% if wishlist_items %}
+            <div class="row">
+                {% for item in wishlist_items %}
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        {% if item.product.images.first %}
+                        <img src="{{ item.product.images.first.image.url }}" class="card-img-top" alt="{{ item.product.name }}">
+                        {% else %}
+                        <img src="https://via.placeholder.com/300x300?text={{ item.product.name }}" class="card-img-top" alt="{{ item.product.name }}">
+                        {% endif %}
+                        
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                <a href="{% url 'catalog:product-detail' item.product.slug %}" class="text-decoration-none">
+                                    {{ item.product.name }}
+                                </a>
+                            </h5>
+                            <p class="card-text text-muted">{{ item.product.description|truncatewords:15 }}</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="h4 text-primary mb-0">${{ item.product.price }}</span>
+                                <span class="badge bg-success">En stock</span>
+                            </div>
+                        </div>
+                        <div class="card-footer bg-white border-top-0">
+                            <div class="d-flex gap-2">
+                                <form action="{% url 'cart:add-to-cart' item.product.id %}" method="post" class="flex-grow-1">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-primary w-100">
+                                        <i class="fas fa-shopping-cart me-2"></i>Agregar al Carrito
+                                    </button>
+                                </form>
+                                <form action="{% url 'accounts:remove-from-wishlist' item.product.id %}" method="post">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-outline-danger" title="Eliminar de favoritos">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="card">
+                <div class="card-body text-center py-5">
+                    <i class="fas fa-heart fa-4x text-muted mb-3"></i>
+                    <h4>Tu lista de deseos está vacía</h4>
+                    <p class="text-muted">Guarda tus productos favoritos para comprarlos más tarde</p>
+                    <div class="alert alert-info mt-4">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Cómo funciona:</strong> Haz clic en el corazón ❤️ en cualquier producto para agregarlo a tu lista de deseos.
+                    </div>
+                    <a href="{% url 'catalog:product-list' %}" class="btn btn-primary mt-3">
+                        <i class="fas fa-shopping-bag me-2"></i>Explorar Productos
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

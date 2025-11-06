@@ -1,0 +1,262 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Iniciar Sesión - Flash{% endblock %}
+
+{% block extra_css %}
+<style>
+    .auth-container {
+        max-width: 380px;
+        margin: 40px auto;
+        padding: 20px;
+    }
+
+    .auth-card {
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 30px;
+        background: white;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .auth-logo {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    .auth-logo h1 {
+        font-size: 32px;
+        font-weight: 700;
+        color: var(--flash-dark);
+        margin: 0;
+    }
+
+    .auth-logo .flash-text {
+        color: var(--flash-orange);
+    }
+
+    .auth-title {
+        font-size: 28px;
+        font-weight: 400;
+        margin-bottom: 10px;
+        color: var(--flash-dark);
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    .form-label {
+        display: block;
+        font-weight: 700;
+        font-size: 13px;
+        margin-bottom: 5px;
+        color: var(--flash-dark);
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #a6a6a6;
+        border-radius: 3px;
+        font-size: 14px;
+        transition: all 0.2s;
+    }
+
+    .form-control:focus {
+        border-color: var(--flash-orange);
+        box-shadow: 0 0 0 3px rgba(255, 153, 0, 0.1);
+        outline: none;
+    }
+
+    .btn-auth {
+        width: 100%;
+        padding: 12px;
+        background: linear-gradient(to bottom, #f7dfa5, #f0c14b);
+        border: 1px solid #a88734;
+        border-radius: 3px;
+        color: #111;
+        font-weight: 700;
+        font-size: 14px;
+        cursor: pointer;
+        margin-top: 10px;
+        transition: all 0.2s;
+    }
+
+    .btn-auth:hover {
+        background: linear-gradient(to bottom, #f5d78e, #edb933);
+    }
+
+    .auth-divider {
+        margin: 20px 0;
+        position: relative;
+        text-align: center;
+    }
+
+    .auth-divider::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 50%;
+        height: 1px;
+        background: #e7e7e7;
+    }
+
+    .auth-divider span {
+        position: relative;
+        background: white;
+        padding: 0 10px;
+        color: #767676;
+        font-size: 12px;
+    }
+
+    .btn-register {
+        width: 100%;
+        padding: 10px;
+        background: linear-gradient(to bottom, #f7f8fa, #e7e9ec);
+        border: 1px solid #adb1b8;
+        border-radius: 3px;
+        color: #111;
+        font-weight: 700;
+        font-size: 13px;
+        cursor: pointer;
+        transition: all 0.2s;
+        text-decoration: none;
+        display: inline-block;
+        text-align: center;
+    }
+
+    .btn-register:hover {
+        background: linear-gradient(to bottom, #e7e9ec, #d5d9dd);
+        color: #111;
+    }
+
+    .auth-help {
+        margin-top: 20px;
+        font-size: 12px;
+    }
+
+    .auth-help a {
+        color: #0066c0;
+        text-decoration: none;
+    }
+
+    .auth-help a:hover {
+        color: var(--flash-orange);
+        text-decoration: underline;
+    }
+
+    .alert {
+        padding: 10px 15px;
+        border-radius: 4px;
+        margin-bottom: 15px;
+        font-size: 13px;
+    }
+
+    .alert-danger {
+        background-color: #f8d7da;
+        border: 1px solid #f5c6cb;
+        color: #721c24;
+    }
+
+    .alert-success {
+        background-color: #d4edda;
+        border: 1px solid #c3e6cb;
+        color: #155724;
+    }
+
+    .checkbox-group {
+        margin: 15px 0;
+    }
+
+    .checkbox-group label {
+        font-weight: 400;
+        font-size: 13px;
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+    }
+
+    .checkbox-group input[type="checkbox"] {
+        margin-right: 8px;
+    }
+
+    .auth-footer {
+        margin-top: 30px;
+        padding-top: 20px;
+        border-top: 1px solid #e7e7e7;
+        text-align: center;
+        font-size: 11px;
+        color: #555;
+    }
+
+    .auth-footer a {
+        color: #0066c0;
+        text-decoration: none;
+        margin: 0 5px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-logo">
+        <h1>Flash<span class="flash-text">.</span></h1>
+    </div>
+
+    <div class="auth-card">
+        <h2 class="auth-title">Iniciar sesión</h2>
+
+        {% if messages %}
+            {% for message in messages %}
+                {% if message.tags != 'success' or 'eliminado de tu lista' not in message|lower %}
+                <div class="alert alert-{{ message.tags }}">
+                    {{ message }}
+                </div>
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+
+        <form method="post" action="{% url 'accounts:login' %}">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="username" class="form-label">Correo electrónico o nombre de usuario</label>
+                <input type="text" id="username" name="username" class="form-control" required autofocus>
+            </div>
+
+            <div class="form-group">
+                <label for="password" class="form-label">Contraseña</label>
+                <input type="password" id="password" name="password" class="form-control" required>
+            </div>
+
+            <div class="checkbox-group">
+                <label>
+                    <input type="checkbox" name="remember_me">
+                    Mantener sesión iniciada
+                </label>
+            </div>
+
+            <button type="submit" class="btn-auth">Iniciar sesión</button>
+
+            <div class="auth-help">
+                <a href="{% url 'accounts:password-reset' %}">¿Olvidaste tu contraseña?</a>
+            </div>
+        </form>
+    </div>
+
+    <div class="auth-divider">
+        <span>¿Eres nuevo en Flash?</span>
+    </div>
+
+    <a href="{% url 'accounts:register' %}" class="btn-register">Crear tu cuenta de Flash</a>
+
+    <div class="auth-footer">
+        <a href="#">Condiciones de uso</a> |
+        <a href="#">Aviso de privacidad</a> |
+        <a href="#">Ayuda</a>
+        <p style="margin-top: 10px;">© 2024 Flash Marketplace. Todos los derechos reservados.</p>
+    </div>
+</div>
+{% endblock %}

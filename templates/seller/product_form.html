@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{% if editing %}Editar{% else %}Crear{% endif %} Producto - Flash Marketplace{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-body p-4">
+                    <h2 class="card-title mb-4">
+                        {% if editing %}
+                        <i class="fas fa-edit text-warning"></i> Editar Producto
+                        {% else %}
+                        <i class="fas fa-plus text-primary"></i> Crear Nuevo Producto
+                        {% endif %}
+                    </h2>
+
+                    {% if messages %}
+                        {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Nombre del Producto *</label>
+                            <input type="text" class="form-control" id="name" name="name" 
+                                   value="{% if product %}{{ product.name }}{% endif %}"
+                                   placeholder="Ej: iPhone 14 Pro Max 256GB" required maxlength="200">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="category" class="form-label">Categoría *</label>
+                            <select class="form-select" id="category" name="category" required>
+                                <option value="">Selecciona una categoría...</option>
+                                {% for cat in categories %}
+                                <option value="{{ cat.id }}" 
+                                    {% if product and product.category.id == cat.id %}selected{% endif %}>
+                                    {{ cat.name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Descripción *</label>
+                            <textarea class="form-control" id="description" name="description" 
+                                      rows="5" required placeholder="Describe tu producto en detalle...">{% if product %}{{ product.description }}{% endif %}</textarea>
+                            <small class="form-text text-muted">Incluye características, condición, y cualquier detalle relevante</small>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="price" class="form-label">Precio *</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">$</span>
+                                    <input type="number" class="form-control" id="price" name="price" 
+                                           value="{% if product %}{{ product.price }}{% endif %}"
+                                           step="0.01" min="0" required placeholder="0.00">
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="stock" class="form-label">Stock *</label>
+                                <input type="number" class="form-control" id="stock" name="stock" 
+                                       value="{% if product %}{{ product.stock }}{% else %}1{% endif %}"
+                                       min="0" required>
+                            </div>
+                        </div>
+
+                        <!-- Sección de Imágenes -->
+                        <div class="mb-3">
+                            <label for="images" class="form-label">
+                                {% if editing %}Agregar más imágenes{% else %}Imágenes del Producto *{% endif %}
+                            </label>
+                            <input type="file" class="form-control" id="images" name="images" 
+                                   accept="image/*" multiple {% if not editing %}required{% endif %}>
+                            <small class="form-text text-muted">
+                                Puedes seleccionar múltiples imágenes. Formatos: JPG, PNG, WEBP (máx. 5MB cada una)
+                            </small>
+                        </div>
+
+                        {% if editing and product.images.all %}
+                        <div class="mb-3">
+                            <label class="form-label">Imágenes Actuales</label>
+                            <div class="row">
+                                {% for image in product.images.all %}
+                                <div class="col-md-3 mb-3">
+                                    <div class="card">
+                                        <img src="{{ image.image.url }}" class="card-img-top" alt="{{ image.alt_text }}" style="height: 150px; object-fit: cover;">
+                                        <div class="card-body p-2">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" name="delete_images" value="{{ image.id }}" id="delete_{{ image.id }}">
+                                                <label class="form-check-label" for="delete_{{ image.id }}">
+                                                    <small>Eliminar</small>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        {% if editing %}
+                        <div class="mb-3">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="available" name="available"
+                                       {% if product.available %}checked{% endif %}>
+                                <label class="form-check-label" for="available">
+                                    Producto Disponible
+                                </label>
+                            </div>
+                            <small class="form-text text-muted">
+                                Desactiva esta opción si quieres pausar las ventas temporalmente
+                            </small>
+                        </div>
+                        {% endif %}
+
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i>
+                            <strong>Nota:</strong> Se aplicará una comisión del 10% sobre cada venta.
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-save me-2"></i>
+                                {% if editing %}Actualizar Producto{% else %}Publicar Producto{% endif %}
+                            </button>
+                            <a href="{% url 'seller:products' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-times me-2"></i>Cancelar
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Mi Perfil - Flash Marketplace{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Hola, {{ user.first_name|default:user.username }}</h5>
+                    <p class="text-muted small">Gestiona tu cuenta y revisa tus pedidos</p>
+                    <hr>
+                    <nav class="nav flex-column">
+                        <a class="nav-link active" href="{% url 'accounts:profile' %}">
+                            <i class="fas fa-user me-2"></i>Mi Perfil
+                        </a>
+                        <a class="nav-link" href="{% url 'accounts:orders' %}">
+                            <i class="fas fa-box me-2"></i>Mis Pedidos
+                        </a>
+                        <a class="nav-link" href="{% url 'accounts:addresses' %}">
+                            <i class="fas fa-map-marker-alt me-2"></i>Direcciones
+                        </a>
+                        <a class="nav-link" href="{% url 'accounts:payment-methods' %}">
+                            <i class="fas fa-credit-card me-2"></i>Métodos de Pago
+                        </a>
+                        <a class="nav-link" href="{% url 'accounts:wishlist' %}">
+                            <i class="fas fa-heart me-2"></i>Lista de Deseos
+                        </a>
+                        <a class="nav-link" href="{% url 'accounts:my-reviews' %}">
+                            <i class="fas fa-star me-2"></i>Mis Reseñas
+                        </a>
+                        <a class="nav-link" href="{% url 'accounts:settings' %}">
+                            <i class="fas fa-cog me-2"></i>Configuración
+                        </a>
+                        {% if user.is_superuser %}
+                        <hr>
+                        <a class="nav-link text-warning" href="{% url 'core:admin-dashboard' %}" style="background-color: #fff3cd; border-left: 3px solid #ff9900;">
+                            <i class="fas fa-crown me-2"></i><strong>Panel Administrativo</strong>
+                        </a>
+                        {% endif %}
+                        <hr>
+                        <a class="nav-link text-danger" href="{% url 'accounts:logout' %}">
+                            <i class="fas fa-sign-out-alt me-2"></i>Cerrar Sesión
+                        </a>
+                    </nav>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-9">
+            <!-- Información Personal -->
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Información Personal</h5>
+                    <button class="btn btn-sm btn-outline-primary">
+                        <i class="fas fa-edit me-1"></i>Editar
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="text-muted small">Nombre</label>
+                            <p class="mb-0 fw-bold">{{ user.first_name|default:"-" }}</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="text-muted small">Apellido</label>
+                            <p class="mb-0 fw-bold">{{ user.last_name|default:"-" }}</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="text-muted small">Email</label>
+                            <p class="mb-0 fw-bold">{{ user.email }}</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="text-muted small">Usuario</label>
+                            <p class="mb-0 fw-bold">{{ user.username }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

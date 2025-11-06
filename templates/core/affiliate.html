@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Programa de Afiliados - Flash{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <h1 class="mb-4">Programa de Afiliados Flash</h1>
+            
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h2 class="h4 mb-3">Gana dinero promocionando productos</h2>
+                    <p>Únete a nuestro programa de afiliados y gana comisiones por cada venta que generes. Es fácil, gratuito y puedes empezar de inmediato.</p>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h2 class="h4 mb-3">¿Cómo funciona?</h2>
+                    <div class="row">
+                        <div class="col-md-4 text-center mb-3">
+                            <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                                <h3 class="mb-0">1</h3>
+                            </div>
+                            <h5>Regístrate</h5>
+                            <p class="small">Crea tu cuenta de afiliado de forma gratuita</p>
+                        </div>
+                        <div class="col-md-4 text-center mb-3">
+                            <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                                <h3 class="mb-0">2</h3>
+                            </div>
+                            <h5>Promociona</h5>
+                            <p class="small">Comparte tus enlaces de afiliado en redes sociales, blog o web</p>
+                        </div>
+                        <div class="col-md-4 text-center mb-3">
+                            <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                                <h3 class="mb-0">3</h3>
+                            </div>
+                            <h5>Gana</h5>
+                            <p class="small">Recibe comisiones por cada venta generada</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h2 class="h4 mb-3">Comisiones</h2>
+                    <ul>
+                        <li>Hasta <strong>10% de comisión</strong> por cada venta</li>
+                        <li>Sin límite de ganancias</li>
+                        <li>Pagos mensuales directos a tu cuenta</li>
+                        <li>Panel de control para seguimiento en tiempo real</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h2 class="h4 mb-3">Beneficios</h2>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <ul>
+                                <li>✓ Registro gratuito</li>
+                                <li>✓ Miles de productos para promocionar</li>
+                                <li>✓ Materiales de marketing</li>
+                                <li>✓ Soporte dedicado</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <ul>
+                                <li>✓ Enlaces personalizados</li>
+                                <li>✓ Reportes detallados</li>
+                                <li>✓ Pagos puntuales</li>
+                                <li>✓ Sin cuotas mensuales</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-body text-center">
+                    <h2 class="h4 mb-3">¿Listo para empezar?</h2>
+                    <p>Únete hoy al Programa de Afiliados Flash y comienza a ganar dinero</p>
+                    <a href="{% url 'accounts:register' %}" class="btn btn-primary btn-lg">Registrarme Ahora</a>
+                    <p class="mt-3 small text-muted">¿Tienes preguntas? Contáctanos en affiliates@flashmarketplace.com</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Mis Productos - {{ seller.store_name }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3 col-lg-2 bg-light border-end">
+            <div class="py-3">
+                <h5 class="px-3 mb-3">
+                    <i class="fas fa-store text-primary"></i> {{ seller.store_name }}
+                </h5>
+                <nav class="nav flex-column">
+                    <a class="nav-link" href="{% url 'seller:dashboard' %}">
+                        <i class="fas fa-chart-line me-2"></i>Dashboard
+                    </a>
+                    <a class="nav-link active" href="{% url 'seller:products' %}">
+                        <i class="fas fa-box me-2"></i>Productos
+                    </a>
+                    <a class="nav-link" href="{% url 'seller:sales' %}">
+                        <i class="fas fa-dollar-sign me-2"></i>Ventas
+                    </a>
+                    <hr>
+                    <a class="nav-link" href="{% url 'core:home' %}">
+                        <i class="fas fa-home me-2"></i>Volver al Marketplace
+                    </a>
+                </nav>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-9 col-lg-10">
+            <div class="container-fluid">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2>Mis Productos</h2>
+                    <a href="{% url 'seller:create-product' %}" class="btn btn-primary">
+                        <i class="fas fa-plus me-2"></i>Nuevo Producto
+                    </a>
+                </div>
+
+                {% if messages %}
+                    {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                    {% endfor %}
+                {% endif %}
+
+                {% if products %}
+                <div class="card">
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Producto</th>
+                                        <th>Categoría</th>
+                                        <th>Precio</th>
+                                        <th>Stock</th>
+                                        <th>Estado</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for product in products %}
+                                    <tr>
+                                        <td>
+                                            <a href="{% url 'catalog:product-detail' product.slug %}" target="_blank">
+                                                {{ product.name }}
+                                            </a>
+                                        </td>
+                                        <td>{{ product.category.name }}</td>
+                                        <td><strong>${{ product.price }}</strong></td>
+                                        <td>
+                                            {% if product.stock > 10 %}
+                                            <span class="badge bg-success">{{ product.stock }}</span>
+                                            {% elif product.stock > 0 %}
+                                            <span class="badge bg-warning">{{ product.stock }}</span>
+                                            {% else %}
+                                            <span class="badge bg-danger">Agotado</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if product.available %}
+                                            <span class="badge bg-success">
+                                                <i class="fas fa-check"></i> Activo
+                                            </span>
+                                            {% else %}
+                                            <span class="badge bg-secondary">
+                                                <i class="fas fa-times"></i> Inactivo
+                                            </span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <div class="btn-group" role="group">
+                                                <a href="{% url 'seller:edit-product' product.id %}" 
+                                                   class="btn btn-sm btn-outline-primary"
+                                                   title="Editar">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                <a href="{% url 'catalog:product-detail' product.slug %}" 
+                                                   class="btn btn-sm btn-outline-info"
+                                                   target="_blank"
+                                                   title="Ver">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                                <a href="{% url 'seller:delete-product' product.id %}" 
+                                                   class="btn btn-sm btn-outline-danger"
+                                                   title="Eliminar">
+                                                    <i class="fas fa-trash"></i>
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <div class="card">
+                    <div class="card-body text-center py-5">
+                        <i class="fas fa-box-open fa-4x text-muted mb-3"></i>
+                        <h4>No tienes productos publicados</h4>
+                        <p class="text-muted">Comienza a vender publicando tu primer producto</p>
+                        <a href="{% url 'seller:create-product' %}" class="btn btn-primary mt-3">
+                            <i class="fas fa-plus me-2"></i>Crear Producto
+                        </a>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

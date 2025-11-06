@@ -1,0 +1,378 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Flash - Los mejores productos al mejor precio | Envío Gratis{% endblock %}
+
+{% block content %}
+<!-- Hero Banner Principal -->
+<section class="hero-section">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-7 hero-content">
+                <h1 class="hero-title">Descubre millones de productos</h1>
+                <p class="hero-subtitle">Compra lo que necesitas con envío rápido y los mejores precios del mercado</p>
+                <div class="d-flex gap-3 flex-wrap">
+                    <a href="{% url 'catalog:product-list' %}" class="btn btn-hero">
+                        <i class="fas fa-shopping-bag me-2"></i> Ver Productos
+                    </a>
+                    <a href="{% url 'catalog:product-list' %}?featured=true" class="btn btn-secondary">
+                        <i class="fas fa-fire me-2"></i> Ofertas del Día
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-5 text-center d-none d-lg-block">
+                <img src="https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=600&h=400&fit=crop" 
+                     alt="Shopping" 
+                     class="img-fluid" 
+                     style="max-height: 350px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.2);">
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Barra de Beneficios -->
+<section style="background-color: white; border-bottom: 1px solid #ddd;">
+    <div class="container py-3">
+        <div class="row text-center">
+            <div class="col-md-3 col-6 mb-2 mb-md-0">
+                <i class="fas fa-shipping-fast text-warning" style="font-size: 1.75rem;"></i>
+                <p class="mb-0 mt-2" style="font-size: 0.875rem; font-weight: 500;">Envío Gratis</p>
+            </div>
+            <div class="col-md-3 col-6 mb-2 mb-md-0">
+                <i class="fas fa-shield-alt text-warning" style="font-size: 1.75rem;"></i>
+                <p class="mb-0 mt-2" style="font-size: 0.875rem; font-weight: 500;">Compra Segura</p>
+            </div>
+            <div class="col-md-3 col-6">
+                <i class="fas fa-undo text-warning" style="font-size: 1.75rem;"></i>
+                <p class="mb-0 mt-2" style="font-size: 0.875rem; font-weight: 500;">30 Días Devolución</p>
+            </div>
+            <div class="col-md-3 col-6">
+                <i class="fas fa-headset text-warning" style="font-size: 1.75rem;"></i>
+                <p class="mb-0 mt-2" style="font-size: 0.875rem; font-weight: 500;">Soporte 24/7</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Categorías Principales -->
+<section class="py-5" style="background-color: white;">
+    <div class="container">
+        <h2 class="section-title">Compra por categoría</h2>
+        <div class="row g-3">
+            {% for category in categories %}
+            <div class="col-6 col-md-4 col-lg-2">
+                <a href="{% url 'catalog:product-list' %}?category={{ category.id }}" style="text-decoration: none;">
+                    <div class="category-card text-center p-3" style="min-height: 140px; display: flex; flex-direction: column; justify-content: center;">
+                        <i class="fas fa-{{ category.icon|default:'box' }} mb-2"></i>
+                        <h5 class="mb-1" style="font-size: 0.95rem;">{{ category.name }}</h5>
+                        <p class="text-muted mb-0" style="font-size: 0.75rem;">{{ category.products.count }} productos</p>
+                    </div>
+                </a>
+            </div>
+            {% empty %}
+            <div class="col-6 col-md-4 col-lg-2">
+                <div class="category-card text-center p-3" style="min-height: 140px;">
+                    <i class="fas fa-laptop mb-2"></i>
+                    <h5 class="mb-1" style="font-size: 0.95rem;">Electrónica</h5>
+                    <p class="text-muted mb-0" style="font-size: 0.75rem;">Ver todos</p>
+                </div>
+            </div>
+            <div class="col-6 col-md-4 col-lg-2">
+                <div class="category-card text-center p-3" style="min-height: 140px;">
+                    <i class="fas fa-tshirt mb-2"></i>
+                    <h5 class="mb-1" style="font-size: 0.95rem;">Moda</h5>
+                    <p class="text-muted mb-0" style="font-size: 0.75rem;">Ver todos</p>
+                </div>
+            </div>
+            <div class="col-6 col-md-4 col-lg-2">
+                <div class="category-card text-center p-3" style="min-height: 140px;">
+                    <i class="fas fa-home mb-2"></i>
+                    <h5 class="mb-1" style="font-size: 0.95rem;">Hogar</h5>
+                    <p class="text-muted mb-0" style="font-size: 0.75rem;">Ver todos</p>
+                </div>
+            </div>
+            <div class="col-6 col-md-4 col-lg-2">
+                <div class="category-card text-center p-3" style="min-height: 140px;">
+                    <i class="fas fa-book mb-2"></i>
+                    <h5 class="mb-1" style="font-size: 0.95rem;">Libros</h5>
+                    <p class="text-muted mb-0" style="font-size: 0.75rem;">Ver todos</p>
+                </div>
+            </div>
+            <div class="col-6 col-md-4 col-lg-2">
+                <div class="category-card text-center p-3" style="min-height: 140px;">
+                    <i class="fas fa-futbol mb-2"></i>
+                    <h5 class="mb-1" style="font-size: 0.95rem;">Deportes</h5>
+                    <p class="text-muted mb-0" style="font-size: 0.75rem;">Ver todos</p>
+                </div>
+            </div>
+            <div class="col-6 col-md-4 col-lg-2">
+                <div class="category-card text-center p-3" style="min-height: 140px;">
+                    <i class="fas fa-gamepad mb-2"></i>
+                    <h5 class="mb-1" style="font-size: 0.95rem;">Gaming</h5>
+                    <p class="text-muted mb-0" style="font-size: 0.75rem;">Ver todos</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Banner de Ofertas -->
+<section class="py-4" style="background: linear-gradient(135deg, #FF9900 0%, #E68A00 100%);">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h3 class="mb-2" style="color: #111; font-weight: 700;">
+                    <i class="fas fa-bolt me-2"></i>Ofertas Flash del Día
+                </h3>
+                <p class="mb-0" style="color: #111; font-size: 1.1rem;">Descuentos de hasta 70% - Por tiempo limitado</p>
+            </div>
+            <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                <a href="{% url 'catalog:product-list' %}?featured=true" class="btn" style="background-color: #111; color: white; font-weight: 700; padding: 0.75rem 2rem; border-radius: 8px;">
+                    Ver Todas las Ofertas <i class="fas fa-arrow-right ms-2"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Productos Destacados -->
+<section class="py-5" style="background-color: white;">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="section-title mb-0">Productos destacados para ti</h2>
+            <a href="{% url 'catalog:product-list' %}" style="color: #007185; text-decoration: none; font-size: 0.95rem; font-weight: 500;">
+                Ver más <i class="fas fa-chevron-right ms-1"></i>
+            </a>
+        </div>
+        <div class="row g-3">
+            {% for product in featured_products %}
+            <div class="col-6 col-md-4 col-lg-3 col-xl-2">
+                <div class="product-card">
+                    <a href="{% url 'catalog:product-detail' product.slug %}">
+                        {% if product.images.first %}
+                        <img src="{{ product.images.first.image.url }}" alt="{{ product.name }}" class="product-image">
+                        {% else %}
+                        <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=400&fit=crop" alt="{{ product.name }}" class="product-image">
+                        {% endif %}
+                    </a>
+                    
+                    <a href="{% url 'catalog:product-detail' product.slug %}" class="product-title">
+                        {{ product.name|truncatewords:8 }}
+                    </a>
+                    
+                    <div class="product-rating">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star-half-alt"></i>
+                        <span class="review-count">({{ product.reviews.count|default:"124" }})</span>
+                    </div>
+                    
+                    <div class="d-flex align-items-center mb-2">
+                        <span class="product-price">
+                            $<sup>{{ product.price|floatformat:0 }}</sup>
+                        </span>
+                        {% if product.original_price %}
+                        <span class="product-original-price">${{ product.original_price|floatformat:0 }}</span>
+                        {% endif %}
+                    </div>
+                    
+                    {% if product.discount_percentage %}
+                    <span class="product-discount">-{{ product.discount_percentage }}%</span>
+                    {% endif %}
+                    
+                    <p class="text-muted mb-2" style="font-size: 0.75rem;">
+                        <i class="fas fa-check-circle text-success"></i> En stock
+                    </p>
+                    
+                    <button class="btn btn-add-to-cart btn-sm" onclick="addToCart({{ product.id }})">
+                        <i class="fas fa-shopping-cart me-1"></i> Agregar
+                    </button>
+                </div>
+            </div>
+            {% empty %}
+            <!-- Productos de ejemplo si no hay en la BD -->
+            {% for i in "123456" %}
+            <div class="col-6 col-md-4 col-lg-3 col-xl-2">
+                <div class="product-card">
+                    <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=400&fit=crop" alt="Product" class="product-image">
+                    <a href="#" class="product-title">Producto de Ejemplo Premium</a>
+                    <div class="product-rating">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star-half-alt"></i>
+                        <span class="review-count">(250)</span>
+                    </div>
+                    <div class="d-flex align-items-center mb-2">
+                        <span class="product-price">$<sup>99,990</sup></span>
+                        <span class="product-original-price">$149,990</span>
+                    </div>
+                    <span class="product-discount">-33%</span>
+                    <p class="text-muted mb-2" style="font-size: 0.75rem;">
+                        <i class="fas fa-check-circle text-success"></i> En stock
+                    </p>
+                    <button class="btn btn-add-to-cart btn-sm">
+                        <i class="fas fa-shopping-cart me-1"></i> Agregar
+                    </button>
+                </div>
+            </div>
+            {% endfor %}
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Más Vendidos -->
+<section class="py-5" style="background-color: #F3F3F3;">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="section-title mb-0">Los más vendidos</h2>
+            <a href="{% url 'catalog:product-list' %}" style="color: #007185; text-decoration: none; font-size: 0.95rem; font-weight: 500;">
+                Ver más <i class="fas fa-chevron-right ms-1"></i>
+            </a>
+        </div>
+        <div class="row g-3">
+            {% for product in bestsellers %}
+            <div class="col-6 col-md-4 col-lg-3 col-xl-2">
+                <div class="product-card">
+                    <div style="position: relative;">
+                        {% if forloop.counter <= 3 %}
+                        <span style="position: absolute; top: 8px; left: 8px; background: #CC0C39; color: white; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 700; z-index: 1;">
+                            #{{ forloop.counter }} Más Vendido
+                        </span>
+                        {% endif %}
+                        <a href="{% url 'catalog:product-detail' product.slug %}">
+                            {% if product.images.first %}
+                            <img src="{{ product.images.first.image.url }}" alt="{{ product.name }}" class="product-image">
+                            {% else %}
+                            <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&h=400&fit=crop" alt="{{ product.name }}" class="product-image">
+                            {% endif %}
+                        </a>
+                    </div>
+                    
+                    <a href="{% url 'catalog:product-detail' product.slug %}" class="product-title">
+                        {{ product.name|truncatewords:8 }}
+                    </a>
+                    
+                    <div class="product-rating">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="far fa-star"></i>
+                        <span class="review-count">({{ product.reviews.count|default:"89" }})</span>
+                    </div>
+                    
+                    <div class="d-flex align-items-center mb-2">
+                        <span class="product-price">$<sup>{{ product.price|floatformat:0 }}</sup></span>
+                    </div>
+                    
+                    <button class="btn btn-add-to-cart btn-sm" onclick="addToCart({{ product.id }})">
+                        <i class="fas fa-shopping-cart me-1"></i> Agregar
+                    </button>
+                </div>
+            </div>
+            {% empty %}
+            <!-- Productos de ejemplo -->
+            {% for i in "123456" %}
+            <div class="col-6 col-md-4 col-lg-3 col-xl-2">
+                <div class="product-card">
+                    {% if forloop.counter <= 3 %}
+                    <div style="position: relative;">
+                        <span style="position: absolute; top: 8px; left: 8px; background: #CC0C39; color: white; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 700; z-index: 1;">
+                            #{{ forloop.counter }} Más Vendido
+                        </span>
+                        <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&h=400&fit=crop" alt="Product" class="product-image">
+                    </div>
+                    {% else %}
+                    <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&h=400&fit=crop" alt="Product" class="product-image">
+                    {% endif %}
+                    <a href="#" class="product-title">Top Selling Product</a>
+                    <div class="product-rating">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="far fa-star"></i>
+                        <span class="review-count">(89)</span>
+                    </div>
+                    <div class="d-flex align-items-center mb-2">
+                        <span class="product-price">$<sup>79,990</sup></span>
+                    </div>
+                    <button class="btn btn-add-to-cart btn-sm">
+                        <i class="fas fa-shopping-cart me-1"></i> Agregar
+                    </button>
+                </div>
+            </div>
+            {% endfor %}
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Banner Final CTA -->
+<section class="py-5" style="background-color: #232F3E;">
+    <div class="container text-center">
+        <h2 style="color: white; font-weight: 700; margin-bottom: 1rem;">
+            ¿Eres vendedor? Únete a Flash
+        </h2>
+        <p style="color: #DDD; font-size: 1.1rem; margin-bottom: 2rem;">
+            Llega a millones de clientes y haz crecer tu negocio
+        </p>
+        <a href="{% url 'seller:become' %}" class="btn btn-hero">
+            <i class="fas fa-store me-2"></i> Empezar a Vender
+        </a>
+    </div>
+</section>
+
+<script>
+function addToCart(productId) {
+    fetch(`/carrito/agregar/${productId}/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ quantity: 1 })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Actualizar el contador del carrito
+            const badge = document.querySelector('.header-link .badge');
+            if (badge) {
+                badge.textContent = data.cart_count;
+            }
+            // Mostrar notificación
+            alert('Producto agregado al carrito');
+        } else {
+            alert(data.message || 'Error al agregar el producto');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Ocurrió un error al agregar el producto');
+    });
+}
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+</script>
+
+{% endblock %}

@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Mis Direcciones - Flash Marketplace{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Hola, {{ user.first_name|default:user.username }}</h5>
+                    <p class="text-muted small">Gestiona tu cuenta y revisa tus pedidos</p>
+                    <hr>
+                    <nav class="nav flex-column">
+                        <a class="nav-link" href="{% url 'accounts:profile' %}">
+                            <i class="fas fa-user me-2"></i>Mi Perfil
+                        </a>
+                        <a class="nav-link" href="{% url 'accounts:orders' %}">
+                            <i class="fas fa-box me-2"></i>Mis Pedidos
+                        </a>
+                        <a class="nav-link active" href="{% url 'accounts:addresses' %}">
+                            <i class="fas fa-map-marker-alt me-2"></i>Direcciones
+                        </a>
+                        <a class="nav-link" href="{% url 'accounts:payment-methods' %}">
+                            <i class="fas fa-credit-card me-2"></i>Métodos de Pago
+                        </a>
+                        <a class="nav-link" href="{% url 'accounts:wishlist' %}">
+                            <i class="fas fa-heart me-2"></i>Lista de Deseos
+                        </a>
+                        <a class="nav-link" href="{% url 'accounts:my-reviews' %}">
+                            <i class="fas fa-star me-2"></i>Mis Reseñas
+                        </a>
+                        <a class="nav-link" href="{% url 'accounts:settings' %}">
+                            <i class="fas fa-cog me-2"></i>Configuración
+                        </a>
+                        <hr>
+                        <a class="nav-link text-danger" href="{% url 'accounts:logout' %}">
+                            <i class="fas fa-sign-out-alt me-2"></i>Cerrar Sesión
+                        </a>
+                    </nav>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-9">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="mb-0">Mis Direcciones</h2>
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addAddressModal">
+                    <i class="fas fa-plus me-2"></i>Agregar Dirección
+                </button>
+            </div>
+
+            {% if messages %}
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                {% endfor %}
+            {% endif %}
+
+            {% if addresses %}
+            <div class="row">
+                {% for address in addresses %}
+                <div class="col-md-6 mb-3">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h6 class="mb-0">
+                                    {% if address.is_default %}
+                                    <span class="badge bg-primary me-2">Principal</span>
+                                    {% endif %}
+                                    Dirección de Envío
+                                </h6>
+                                <form method="post" class="d-inline">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="delete">
+                                    <input type="hidden" name="address_id" value="{{ address.id }}">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Eliminar esta dirección?')">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                            <p class="mb-1">{{ address.street_address }}</p>
+                            <p class="mb-1">{{ address.city }}, {{ address.state }}</p>
+                            <p class="mb-1">{{ address.zip_code }}</p>
+                            <p class="mb-0 text-muted">{{ address.country }}</p>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="card">
+                <div class="card-body text-center py-5">
+                    <i class="fas fa-map-marked-alt fa-4x text-muted mb-3"></i>
+                    <h4>No tienes direcciones guardadas</h4>
+                    <p class="text-muted">Agrega una dirección para realizar pedidos más rápido</p>
+                    <button class="btn btn-primary mt-3" data-bs-toggle="modal" data-bs-target="#addAddressModal">
+                        <i class="fas fa-plus me-2"></i>Agregar Dirección
+                    </button>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Modal Agregar Dirección -->
+<div class="modal fade" id="addAddressModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Agregar Nueva Dirección</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="add">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="street_address" class="form-label">Dirección</label>
+                        <input type="text" class="form-control" id="street_address" name="street_address" required>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="city" class="form-label">Ciudad</label>
+                            <input type="text" class="form-control" id="city" name="city" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="state" class="form-label">Departamento/Estado</label>
+                            <input type="text" class="form-control" id="state" name="state" required>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="zip_code" class="form-label">Código Postal</label>
+                            <input type="text" class="form-control" id="zip_code" name="zip_code" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="country" class="form-label">País</label>
+                            <input type="text" class="form-control" id="country" name="country" value="Colombia" required>
+                        </div>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="is_default" name="is_default">
+                        <label class="form-check-label" for="is_default">
+                            Establecer como dirección principal
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar Dirección</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

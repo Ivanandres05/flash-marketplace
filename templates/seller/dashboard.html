@@ -1,0 +1,228 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Panel de Vendedor - {{ seller.store_name }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3 col-lg-2 bg-light border-end">
+            <div class="py-3">
+                <h5 class="px-3 mb-3">
+                    <i class="fas fa-store text-primary"></i> {{ seller.store_name }}
+                </h5>
+                <nav class="nav flex-column">
+                    <a class="nav-link active" href="{% url 'seller:dashboard' %}">
+                        <i class="fas fa-chart-line me-2"></i>Dashboard
+                    </a>
+                    <a class="nav-link" href="{% url 'seller:products' %}">
+                        <i class="fas fa-box me-2"></i>Productos
+                    </a>
+                    <a class="nav-link" href="{% url 'seller:sales' %}">
+                        <i class="fas fa-dollar-sign me-2"></i>Ventas
+                    </a>
+                    <hr>
+                    <a class="nav-link" href="{% url 'core:home' %}">
+                        <i class="fas fa-home me-2"></i>Volver al Marketplace
+                    </a>
+                </nav>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-9 col-lg-10">
+            <div class="container-fluid">
+                <h2 class="mb-4">Dashboard</h2>
+
+                {% if messages %}
+                    {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                    {% endfor %}
+                {% endif %}
+
+                <!-- Stats Cards -->
+                <div class="row mb-4">
+                    <div class="col-md-3 mb-3">
+                        <div class="card text-white bg-primary">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="card-title text-white-50">Total Productos</h6>
+                                        <h3 class="mb-0">{{ total_products }}</h3>
+                                    </div>
+                                    <i class="fas fa-box fa-2x opacity-50"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3 mb-3">
+                        <div class="card text-white bg-success">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="card-title text-white-50">Activos</h6>
+                                        <h3 class="mb-0">{{ active_products }}</h3>
+                                    </div>
+                                    <i class="fas fa-check-circle fa-2x opacity-50"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3 mb-3">
+                        <div class="card text-white bg-info">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="card-title text-white-50">Ventas Totales</h6>
+                                        <h3 class="mb-0">{{ total_sales }}</h3>
+                                    </div>
+                                    <i class="fas fa-shopping-cart fa-2x opacity-50"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3 mb-3">
+                        <div class="card text-white bg-warning">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="card-title text-white-50">Ingresos</h6>
+                                        <h3 class="mb-0">${{ total_revenue|floatformat:0 }}</h3>
+                                    </div>
+                                    <i class="fas fa-dollar-sign fa-2x opacity-50"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title mb-3">Acciones Rápidas</h5>
+                                <a href="{% url 'seller:create-product' %}" class="btn btn-primary me-2">
+                                    <i class="fas fa-plus me-2"></i>Nuevo Producto
+                                </a>
+                                <a href="{% url 'seller:products' %}" class="btn btn-outline-primary me-2">
+                                    <i class="fas fa-list me-2"></i>Ver Todos los Productos
+                                </a>
+                                <a href="{% url 'seller:sales' %}" class="btn btn-outline-success">
+                                    <i class="fas fa-chart-bar me-2"></i>Ver Ventas
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Products -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0">Productos Recientes</h5>
+                                <a href="{% url 'seller:products' %}" class="btn btn-sm btn-outline-primary">Ver todos</a>
+                            </div>
+                            <div class="card-body">
+                                {% if recent_products %}
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>Producto</th>
+                                                <th>Categoría</th>
+                                                <th>Precio</th>
+                                                <th>Stock</th>
+                                                <th>Estado</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for product in recent_products %}
+                                            <tr>
+                                                <td>
+                                                    <a href="{% url 'catalog:product-detail' product.slug %}">
+                                                        {{ product.name }}
+                                                    </a>
+                                                </td>
+                                                <td>{{ product.category.name }}</td>
+                                                <td>${{ product.price }}</td>
+                                                <td>{{ product.stock }}</td>
+                                                <td>
+                                                    {% if product.available %}
+                                                    <span class="badge bg-success">Activo</span>
+                                                    {% else %}
+                                                    <span class="badge bg-secondary">Inactivo</span>
+                                                    {% endif %}
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                                {% else %}
+                                <p class="text-muted">No has publicado productos aún.</p>
+                                <a href="{% url 'seller:create-product' %}" class="btn btn-primary">
+                                    <i class="fas fa-plus me-2"></i>Crear tu primer producto
+                                </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Sales -->
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0">Ventas Recientes</h5>
+                                <a href="{% url 'seller:sales' %}" class="btn btn-sm btn-outline-success">Ver todas</a>
+                            </div>
+                            <div class="card-body">
+                                {% if recent_sales %}
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>Fecha</th>
+                                                <th>Producto</th>
+                                                <th>Cantidad</th>
+                                                <th>Total</th>
+                                                <th>Estado</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for item in recent_sales %}
+                                            <tr>
+                                                <td>{{ item.order.created_at|date:"d/m/Y H:i" }}</td>
+                                                <td>{{ item.product.name }}</td>
+                                                <td>{{ item.quantity }}</td>
+                                                <td>${{ item.product.price|floatformat:2 }}</td>
+                                                <td>
+                                                    <span class="badge bg-success">Completada</span>
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                                {% else %}
+                                <p class="text-muted">No has realizado ventas aún.</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

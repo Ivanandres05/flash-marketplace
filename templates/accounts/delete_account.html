@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Eliminar Cuenta - Flash Marketplace{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card border-danger shadow">
+                <div class="card-header bg-danger text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Eliminar Cuenta
+                    </h4>
+                </div>
+                <div class="card-body p-4">
+                    {% if messages %}
+                        {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <div class="alert alert-warning">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>¡Atención!</strong> Esta acción es permanente y no se puede deshacer.
+                    </div>
+
+                    <h5 class="mb-3">¿Qué sucederá?</h5>
+                    <ul class="mb-4">
+                        <li>Se eliminará permanentemente tu cuenta <strong>{{ user.username }}</strong></li>
+                        <li>Perderás acceso a todos tus pedidos e historial</li>
+                        <li>Se eliminarán todas tus direcciones guardadas</li>
+                        <li>Tus reseñas y comentarios serán anónimos</li>
+                        {% if user.seller_profile %}
+                        <li class="text-danger"><strong>Se eliminarán todos tus productos publicados</strong></li>
+                        {% endif %}
+                    </ul>
+
+                    <h5 class="mb-3">Confirma tu contraseña</h5>
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Contraseña</label>
+                            <input type="password" class="form-control" id="password" name="password" 
+                                   placeholder="Ingresa tu contraseña para confirmar" required>
+                            <small class="form-text text-muted">
+                                Por razones de seguridad, necesitamos verificar tu identidad
+                            </small>
+                        </div>
+
+                        <div class="form-check mb-4">
+                            <input class="form-check-input" type="checkbox" id="confirm" required>
+                            <label class="form-check-label" for="confirm">
+                                Entiendo que esta acción no se puede deshacer
+                            </label>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-danger btn-lg">
+                                <i class="fas fa-trash me-2"></i>
+                                Sí, eliminar mi cuenta permanentemente
+                            </button>
+                            <a href="{% url 'accounts:profile' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>
+                                No, conservar mi cuenta
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="text-center mt-4">
+                <p class="text-muted">
+                    <i class="fas fa-lock me-2"></i>
+                    Tu información está protegida y será eliminada de forma segura
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

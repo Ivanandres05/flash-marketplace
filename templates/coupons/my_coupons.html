@@ -1,0 +1,191 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Mis Cupones - Flash Marketplace{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Hola, {{ user.first_name|default:user.username }}</h5>
+                    <p class="text-muted small">Gestiona tu cuenta</p>
+                    <hr>
+                    <nav class="nav flex-column">
+                        <a class="nav-link" href="{% url 'accounts:profile' %}">
+                            <i class="fas fa-user me-2"></i>Mi Perfil
+                        </a>
+                        <a class="nav-link" href="{% url 'accounts:orders' %}">
+                            <i class="fas fa-box me-2"></i>Mis Pedidos
+                        </a>
+                        <a class="nav-link active" href="{% url 'coupons:my-coupons' %}">
+                            <i class="fas fa-ticket-alt me-2"></i>Mis Cupones
+                        </a>
+                        <a class="nav-link" href="{% url 'accounts:wishlist' %}">
+                            <i class="fas fa-heart me-2"></i>Lista de Deseos
+                        </a>
+                        <a class="nav-link" href="{% url 'accounts:settings' %}">
+                            <i class="fas fa-cog me-2"></i>Configuración
+                        </a>
+                        <hr>
+                        <a class="nav-link text-danger" href="{% url 'accounts:logout' %}">
+                            <i class="fas fa-sign-out-alt me-2"></i>Cerrar Sesión
+                        </a>
+                    </nav>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-9">
+            <h2 class="mb-4">
+                <i class="fas fa-ticket-alt text-primary me-2"></i>
+                Mis Cupones de Descuento
+            </h2>
+
+            {% if available_coupons %}
+            <div class="alert alert-success mb-4">
+                <i class="fas fa-gift me-2"></i>
+                <strong>¡Tienes {{ available_coupons|length }} cupón/cupones disponibles!</strong> Úsalos en tu próxima compra.
+            </div>
+
+            <h4 class="mb-3">Cupones Disponibles</h4>
+            <div class="row">
+                {% for coupon in available_coupons %}
+                <div class="col-md-6 mb-4">
+                    <div class="card border-primary h-100">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <div>
+                                    <h5 class="card-title text-primary mb-1">
+                                        <i class="fas fa-tag me-2"></i>{{ coupon.code }}
+                                    </h5>
+                                    <p class="card-text text-muted small">{{ coupon.name }}</p>
+                                </div>
+                                <div class="badge bg-success" style="font-size: 1.2rem;">
+                                    {% if coupon.discount_type == 'percentage' %}
+                                        {{ coupon.discount_value }}% OFF
+                                    {% else %}
+                                        ${{ coupon.discount_value|floatformat:0 }} OFF
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            {% if coupon.description %}
+                            <p class="card-text small">{{ coupon.description }}</p>
+                            {% endif %}
+
+                            <div class="mt-3">
+                                <small class="text-muted d-block">
+                                    <i class="far fa-calendar-alt me-1"></i>
+                                    Válido hasta: {{ coupon.valid_to|date:"d/m/Y H:i" }}
+                                </small>
+                                
+                                {% if coupon.minimum_purchase > 0 %}
+                                <small class="text-muted d-block">
+                                    <i class="fas fa-shopping-cart me-1"></i>
+                                    Compra mínima: ${{ coupon.minimum_purchase|floatformat:0 }} COP
+                                </small>
+                                {% endif %}
+
+                                {% if coupon.usage_limit %}
+                                <small class="text-muted d-block">
+                                    <i class="fas fa-users me-1"></i>
+                                    Usos restantes: {{ coupon.usage_limit|add:"-"|add:coupon.times_used }}
+                                </small>
+                                {% endif %}
+                            </div>
+
+                            <button class="btn btn-primary btn-sm mt-3 copy-coupon" 
+                                    data-code="{{ coupon.code }}"
+                                    onclick="copyCoupon('{{ coupon.code }}')">
+                                <i class="fas fa-copy me-1"></i>Copiar Código
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i>
+                No tienes cupones disponibles en este momento. ¡Estate atento a nuevas promociones!
+            </div>
+            {% endif %}
+
+            {% if used_coupons %}
+            <hr class="my-5">
+            <h4 class="mb-3">Cupones Usados</h4>
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Cupón</th>
+                            <th>Descuento</th>
+                            <th>Fecha de Uso</th>
+                            <th>Pedido</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for usage in used_coupons %}
+                        <tr>
+                            <td>
+                                <strong>{{ usage.coupon.code }}</strong>
+                                <br>
+                                <small class="text-muted">{{ usage.coupon.name }}</small>
+                            </td>
+                            <td>
+                                <span class="badge bg-success">
+                                    ${{ usage.discount_amount|floatformat:0 }} OFF
+                                </span>
+                            </td>
+                            <td>{{ usage.used_at|date:"d/m/Y H:i" }}</td>
+                            <td>
+                                {% if usage.order %}
+                                <a href="{% url 'accounts:order-detail' usage.order.id %}" class="btn btn-sm btn-outline-primary">
+                                    Ver Pedido #{{ usage.order.id }}
+                                </a>
+                                {% else %}
+                                -
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% endif %}
+
+            <div class="alert alert-warning mt-4">
+                <h5><i class="fas fa-lightbulb me-2"></i>¿Cómo usar tus cupones?</h5>
+                <ol class="mb-0">
+                    <li>Agrega productos a tu carrito</li>
+                    <li>En el checkout, ingresa el código del cupón</li>
+                    <li>¡El descuento se aplicará automáticamente!</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function copyCoupon(code) {
+    navigator.clipboard.writeText(code).then(function() {
+        // Mostrar notificación
+        const btn = event.target.closest('button');
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-check me-1"></i>¡Copiado!';
+        btn.classList.remove('btn-primary');
+        btn.classList.add('btn-success');
+        
+        setTimeout(function() {
+            btn.innerHTML = originalText;
+            btn.classList.remove('btn-success');
+            btn.classList.add('btn-primary');
+        }, 2000);
+    });
+}
+</script>
+{% endblock %}

@@ -1,0 +1,650 @@
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth import login, authenticate, logout
+from django.contrib.auth.models import User
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from django.views.decorators.http import require_POST
+from .models import Profile, Address
+
+def login_view(request):
+    if request.user.is_authenticated:
+        return redirect('core:home')
+    
+    if request.method == 'POST':
+        username = request.POST.get('username', '').strip()
+        password = request.POST.get('password', '')
+        
+        print(f"🔐 Intento de login - Usuario: {username}")
+        
+        user = authenticate(request, username=username, password=password)
+        
+        if user is not None:
+            print(f"✓ Autenticación exitosa para: {username}")
+            login(request, user)
+            messages.success(request, f'¡Bienvenido de nuevo, {user.first_name or user.username}!')
+            next_url = request.GET.get('next', 'core:home')
+            return redirect(next_url)
+        else:
+            print(f"✗ Autenticación fallida para: {username}")
+            # Verificar si el usuario existe
+            from django.contrib.auth.models import User
+            if User.objects.filter(username=username).exists():
+                print(f"  - Usuario existe en BD, contraseña incorrecta")
+                messages.error(request, 'Contraseña incorrecta')
+            else:
+                print(f"  - Usuario NO existe en BD")
+                messages.error(request, 'Usuario no encontrado')
+    
+    return render(request, 'accounts/login.html')
+
+def register_view(request):
+    if request.user.is_authenticated:
+        return redirect('core:home')
+    
+    if request.method == 'POST':
+        username = request.POST.get('username', '').strip()
+        email = request.POST.get('email', '').strip()
+        first_name = request.POST.get('first_name', '').strip()
+        last_name = request.POST.get('last_name', '').strip()
+        password1 = request.POST.get('password1', '')
+        password2 = request.POST.get('password2', '')
+        
+        # Validar campos vacíos
+        if not all([username, email, first_name, last_name, password1, password2]):
+            messages.error(request, 'Todos los campos son obligatorios')
+            return render(request, 'accounts/register.html', {
+                'username': username,
+                'email': email,
+                'first_name': first_name,
+                'last_name': last_name
+            })
+        
+        # Validar longitud del username
+        if len(username) < 4:
+            messages.error(request, 'El nombre de usuario debe tener al menos 4 caracteres')
+            return render(request, 'accounts/register.html', {
+                'username': username,
+                'email': email,
+                'first_name': first_name,
+                'last_name': last_name
+            })
+        
+        # Validaciones
+        if User.objects.filter(username=username).exists():
+            messages.error(request, 'El nombre de usuario ya está en uso')
+            return render(request, 'accounts/register.html', {
+                'email': email,
+                'first_name': first_name,
+                'last_name': last_name
+            })
+        
+        if User.objects.filter(email=email).exists():
+            messages.error(request, 'El correo electrónico ya está registrado')
+            return render(request, 'accounts/register.html', {
+                'username': username,
+                'first_name': first_name,
+                'last_name': last_name
+            })
+        
+        if password1 != password2:
+            messages.error(request, 'Las contraseñas no coinciden')
+            return render(request, 'accounts/register.html', {
+                'username': username,
+                'email': email,
+                'first_name': first_name,
+                'last_name': last_name
+            })
+        
+        if len(password1) < 8:
+            messages.error(request, 'La contraseña debe tener al menos 8 caracteres')
+            return render(request, 'accounts/register.html', {
+                'username': username,
+                'email': email,
+                'first_name': first_name,
+                'last_name': last_name
+            })
+        
+        try:
+            # Crear usuario
+            user = User.objects.create_user(
+                username=username,
+                email=email,
+                password=password1,
+                first_name=first_name,
+                last_name=last_name
+            )
+            
+            print(f"✓ Usuario creado: {username}")
+            
+            # Crear perfil
+            Profile.objects.create(user=user)
+            
+            print(f"✓ Perfil creado para: {username}")
+            
+            # Iniciar sesión automáticamente
+            # Re-autenticar después de crear el usuario para asegurar que funcione
+            authenticated_user = authenticate(request, username=username, password=password1)
+            
+            if authenticated_user:
+                login(request, authenticated_user)
+                print(f"✓ Sesión iniciada para: {username}")
+                messages.success(request, '¡Cuenta creada exitosamente! Bienvenido a Flash.')
+                return redirect('core:home')
+            else:
+                print(f"✗ Error al autenticar después de crear usuario: {username}")
+                messages.warning(request, 'Cuenta creada correctamente, pero hubo un problema al iniciar sesión. Por favor, inicia sesión manualmente.')
+                return redirect('accounts:login')
+        except Exception as e:
+            print(f"✗ Error al crear usuario: {str(e)}")
+            messages.error(request, f'Error al crear la cuenta: {str(e)}')
+            return render(request, 'accounts/register.html', {
+                'username': username,
+                'email': email,
+                'first_name': first_name,
+                'last_name': last_name
+            })
+    
+    return render(request, 'accounts/register.html')
+
+@login_required
+def profile_view(request):
+    # Asegurarnos de que el usuario tenga un perfil
+    profile, created = Profile.objects.get_or_create(user=request.user)
+    
+    if request.method == 'POST':
+        # Actualizar información personal
+        request.user.first_name = request.POST.get('first_name', '')
+        request.user.last_name = request.POST.get('last_name', '')
+        request.user.email = request.POST.get('email', '')
+        request.user.save()
+        
+        messages.success(request, 'Información actualizada correctamente')
+        return redirect('accounts:profile')
+    
+    # Obtener pedidos del usuario
+    orders = []
+    try:
+        from apps.orders.models import Order
+        orders = Order.objects.filter(user=request.user).order_by('-created_at')[:5]
+    except:
+        pass
+    
+    context = {
+        'orders': orders,
+    }
+    
+    return render(request, 'accounts/profile.html', context)
+
+@login_required
+def my_orders(request):
+    """Ver todos los pedidos del usuario"""
+    # Asegurarnos de que el usuario tenga un perfil
+    profile, created = Profile.objects.get_or_create(user=request.user)
+    
+    # Obtener TODOS los pedidos del usuario
+    orders = []
+    try:
+        from apps.orders.models import Order
+        orders = Order.objects.filter(user=request.user).order_by('-created_at')
+    except:
+        pass
+    
+    context = {
+        'orders': orders,
+    }
+    
+    return render(request, 'accounts/my_orders.html', context)
+
+@login_required
+def order_detail(request, order_id):
+    """Ver detalle de un pedido específico"""
+    from apps.orders.models import Order
+    order = get_object_or_404(Order, id=order_id, user=request.user)
+    
+    return render(request, 'accounts/order_detail.html', {'order': order})
+
+@login_required
+def cancel_order(request, order_id):
+    """Cancelar un pedido"""
+    from apps.orders.models import Order
+    
+    if request.method == 'POST':
+        order = get_object_or_404(Order, id=order_id, user=request.user)
+        
+        # Solo se pueden cancelar pedidos pendientes o en proceso
+        if order.status in ['pending', 'processing']:
+            order.status = 'canceled'
+            cancel_reason = request.POST.get('cancel_reason', '')
+            if cancel_reason:
+                order.notes = f"Cancelado por el usuario. Motivo: {cancel_reason}"
+            else:
+                order.notes = "Cancelado por el usuario."
+            order.save()
+            messages.success(request, f'Pedido #{order.id} cancelado exitosamente.')
+        else:
+            messages.error(request, 'No se puede cancelar este pedido en su estado actual.')
+        
+        return redirect('accounts:order-detail', order_id=order_id)
+    
+    return redirect('accounts:orders')
+
+@login_required
+def my_addresses(request):
+    """Gestionar direcciones de envío"""
+    addresses = Address.objects.filter(user=request.user)
+    
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        
+        if action == 'add':
+            Address.objects.create(
+                user=request.user,
+                street=request.POST.get('street_address'),  # Cambiado de street_address a street
+                city=request.POST.get('city'),
+                state=request.POST.get('state'),
+                zip_code=request.POST.get('zip_code')
+            )
+            messages.success(request, 'Dirección agregada correctamente')
+        
+        elif action == 'delete':
+            address_id = request.POST.get('address_id')
+            Address.objects.filter(id=address_id, user=request.user).delete()
+            messages.success(request, 'Dirección eliminada')
+        
+        return redirect('accounts:addresses')
+    
+    return render(request, 'accounts/my_addresses.html', {'addresses': addresses})
+
+@login_required
+def delete_account(request):
+    """Eliminar cuenta de usuario"""
+    if request.method == 'POST':
+        password = request.POST.get('password')
+        
+        # Verificar contraseña
+        if request.user.check_password(password):
+            username = request.user.username
+            request.user.delete()
+            messages.success(request, f'Tu cuenta "{username}" ha sido eliminada permanentemente.')
+            return redirect('core:home')
+        else:
+            messages.error(request, 'Contraseña incorrecta. No se pudo eliminar la cuenta.')
+            return redirect('accounts:delete-account')
+    
+    return render(request, 'accounts/delete_account.html')
+
+def logout_view(request):
+    logout(request)
+    messages.success(request, 'Has cerrado sesión correctamente')
+    return redirect('core:home')
+
+@login_required
+def payment_methods(request):
+    """Gestionar métodos de pago del usuario"""
+    from .models import PaymentMethod
+    
+    methods = PaymentMethod.objects.filter(user=request.user)
+    
+    return render(request, 'accounts/payment_methods.html', {
+        'payment_methods': methods
+    })
+
+@login_required
+@require_POST
+def add_payment_method(request):
+    """Agregar nuevo método de pago"""
+    from .models import PaymentMethod
+    
+    try:
+        card_type = request.POST.get('card_type', 'visa')
+        card_holder = request.POST.get('card_holder', '').strip()
+        card_number = request.POST.get('card_number', '').strip()
+        expiry_month = request.POST.get('expiry_month', '').strip()
+        expiry_year = request.POST.get('expiry_year', '').strip()
+        is_default = request.POST.get('is_default') == 'on'
+        
+        # Validaciones
+        if not card_holder or not card_number or not expiry_month or not expiry_year:
+            messages.error(request, 'Todos los campos son obligatorios')
+            return redirect('accounts:payment-methods')
+        
+        if len(card_number) < 4:
+            messages.error(request, 'Número de tarjeta inválido')
+            return redirect('accounts:payment-methods')
+        
+        # Guardar solo los últimos 4 dígitos
+        last_four = card_number[-4:]
+        
+        # Crear método de pago
+        PaymentMethod.objects.create(
+            user=request.user,
+            card_type=card_type,
+            card_holder=card_holder,
+            card_number=last_four,
+            expiry_month=expiry_month,
+            expiry_year=expiry_year,
+            is_default=is_default
+        )
+        
+        messages.success(request, '✓ Tarjeta agregada exitosamente')
+        
+    except Exception as e:
+        messages.error(request, f'Error al agregar tarjeta: {str(e)}')
+    
+    return redirect('accounts:payment-methods')
+
+@login_required
+@require_POST
+def delete_payment_method(request, method_id):
+    """Eliminar método de pago"""
+    from .models import PaymentMethod
+    
+    try:
+        method = PaymentMethod.objects.get(id=method_id, user=request.user)
+        method.delete()
+        messages.success(request, '✓ Tarjeta eliminada correctamente')
+    except PaymentMethod.DoesNotExist:
+        messages.error(request, 'Tarjeta no encontrada')
+    except Exception as e:
+        messages.error(request, f'Error al eliminar tarjeta: {str(e)}')
+    
+    return redirect('accounts:payment-methods')
+
+@login_required
+@require_POST
+def set_default_payment(request, method_id):
+    """Establecer método de pago como predeterminado"""
+    from .models import PaymentMethod
+    
+    try:
+        # Quitar default de todas las tarjetas del usuario
+        PaymentMethod.objects.filter(user=request.user).update(is_default=False)
+        
+        # Establecer la seleccionada como default
+        method = PaymentMethod.objects.get(id=method_id, user=request.user)
+        method.is_default = True
+        method.save()
+        
+        messages.success(request, '✓ Tarjeta predeterminada actualizada')
+    except PaymentMethod.DoesNotExist:
+        messages.error(request, 'Tarjeta no encontrada')
+    except Exception as e:
+        messages.error(request, f'Error: {str(e)}')
+    
+    return redirect('accounts:payment-methods')
+
+@login_required
+def wishlist(request):
+    """Ver lista de deseos del usuario"""
+    from .models import Wishlist
+    wishlist_items = Wishlist.objects.filter(user=request.user).select_related('product')
+    return render(request, 'accounts/wishlist.html', {'wishlist_items': wishlist_items})
+
+@login_required
+@login_required
+@require_POST
+def add_to_wishlist(request, product_id):
+    """Agregar producto a la lista de deseos"""
+    from .models import Wishlist
+    from apps.catalog.models import Product
+    from django.http import JsonResponse
+    
+    try:
+        product = get_object_or_404(Product, id=product_id)
+        wishlist_item, created = Wishlist.objects.get_or_create(user=request.user, product=product)
+        
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({
+                'success': True,
+                'added': created,
+                'message': 'Producto agregado a favoritos' if created else 'Producto ya estaba en favoritos'
+            })
+        
+        if created:
+            messages.success(request, f'{product.name} agregado a tu lista de deseos')
+        else:
+            messages.info(request, f'{product.name} ya estaba en tu lista de deseos')
+        
+        return redirect(request.META.get('HTTP_REFERER', 'accounts:wishlist'))
+    except Exception as e:
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({
+                'success': False,
+                'message': f'Error al agregar a favoritos: {str(e)}'
+            }, status=500)
+        messages.error(request, 'Error al agregar el producto a favoritos')
+        return redirect(request.META.get('HTTP_REFERER', 'catalog:product-list'))
+
+@login_required
+def remove_from_wishlist(request, product_id):
+    """Eliminar producto de la lista de deseos"""
+    from .models import Wishlist
+    from django.http import JsonResponse
+    
+    Wishlist.objects.filter(user=request.user, product_id=product_id).delete()
+    
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return JsonResponse({'success': True, 'message': 'Producto eliminado de favoritos'})
+    
+    messages.success(request, 'Producto eliminado de tu lista de deseos')
+    return redirect('accounts:wishlist')
+
+@login_required
+def my_reviews(request):
+    """Ver reseñas escritas por el usuario"""
+    return render(request, 'accounts/my_reviews.html')
+
+@login_required
+def settings(request):
+    """Configuración de cuenta"""
+    profile, created = Profile.objects.get_or_create(user=request.user)
+    
+    if request.method == 'POST':
+        # Actualizar preferencias de notificaciones
+        profile.email_notifications = request.POST.get('email_notifications') == 'on'
+        profile.order_notifications = request.POST.get('order_notifications') == 'on'
+        profile.promotional_notifications = request.POST.get('promotional_notifications') == 'on'
+        profile.save()
+        
+        messages.success(request, 'Configuración actualizada correctamente')
+        return redirect('accounts:settings')
+    
+    return render(request, 'accounts/settings.html', {'profile': profile})
+
+@login_required
+def change_password(request):
+    """Cambiar contraseña del usuario"""
+    if request.method == 'POST':
+        current_password = request.POST.get('current_password')
+        new_password = request.POST.get('new_password')
+        confirm_password = request.POST.get('confirm_password')
+        
+        # Verificar contraseña actual
+        if not request.user.check_password(current_password):
+            messages.error(request, 'La contraseña actual es incorrecta')
+            return redirect('accounts:change-password')
+        
+        # Verificar que las contraseñas nuevas coincidan
+        if new_password != confirm_password:
+            messages.error(request, 'Las contraseñas nuevas no coinciden')
+            return redirect('accounts:change-password')
+        
+        # Verificar longitud mínima
+        if len(new_password) < 8:
+            messages.error(request, 'La contraseña debe tener al menos 8 caracteres')
+            return redirect('accounts:change-password')
+        
+        # Cambiar contraseña
+        request.user.set_password(new_password)
+        request.user.save()
+        
+        # Mantener la sesión activa
+        from django.contrib.auth import update_session_auth_hash
+        update_session_auth_hash(request, request.user)
+        
+        messages.success(request, 'Contraseña actualizada correctamente')
+        return redirect('accounts:settings')
+    
+    return render(request, 'accounts/change_password.html')
+
+def password_reset_request(request):
+    """Solicitar restablecimiento de contraseña"""
+    if request.method == 'POST':
+        email = request.POST.get('email', '').strip()
+        
+        if not email:
+            messages.error(request, 'Por favor ingresa tu correo electrónico')
+            return render(request, 'accounts/password_reset.html')
+        
+        try:
+            user = User.objects.get(email=email)
+            
+            # Generar token seguro
+            from django.contrib.auth.tokens import default_token_generator
+            from django.utils.http import urlsafe_base64_encode
+            from django.utils.encoding import force_bytes
+            from django.core.mail import send_mail
+            from django.template.loader import render_to_string
+            from django.conf import settings
+            
+            # Crear token y uid
+            token = default_token_generator.make_token(user)
+            uid = urlsafe_base64_encode(force_bytes(user.pk))
+            
+            # Construir URL de reset
+            reset_url = request.build_absolute_uri(
+                f'/cuenta/restablecer/{uid}/{token}/'
+            )
+            
+            # Preparar contexto para el email
+            context = {
+                'user': user,
+                'reset_url': reset_url,
+                'site_name': 'Flash Marketplace',
+            }
+            
+            # Renderizar email HTML
+            html_message = render_to_string('accounts/email/password_reset_email.html', context)
+            plain_message = f"""
+Hola {user.first_name or user.username},
+
+Has solicitado restablecer tu contraseña en Flash Marketplace.
+
+Haz clic en el siguiente enlace para crear una nueva contraseña:
+{reset_url}
+
+Este enlace expirará en 24 horas.
+
+Si no solicitaste este cambio, ignora este mensaje.
+
+Saludos,
+Equipo Flash Marketplace
+            """.strip()
+            
+            # Enviar email
+            try:
+                send_mail(
+                    subject='Recuperación de Contraseña - Flash Marketplace',
+                    message=plain_message,
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    recipient_list=[email],
+                    html_message=html_message,
+                    fail_silently=False,
+                )
+                
+                messages.success(
+                    request, 
+                    f'✉️ Se ha enviado un enlace de recuperación a {email}. '
+                    'Revisa tu bandeja de entrada y spam.'
+                )
+                print(f"📧 Email de recuperación enviado a: {email}")
+                print(f"🔗 URL de reset (para testing): {reset_url}")
+                
+            except Exception as e:
+                print(f"❌ Error enviando email: {e}")
+                messages.warning(
+                    request,
+                    f'Email enviado a {email}. Si tienes problemas, contacta a soporte.'
+                )
+            
+            return redirect('accounts:login')
+            
+        except User.DoesNotExist:
+            # Por seguridad, no revelar que el email no existe
+            messages.success(
+                request,
+                f'Si existe una cuenta con {email}, recibirás un email con instrucciones.'
+            )
+            return redirect('accounts:login')
+    
+    return render(request, 'accounts/password_reset.html')
+
+def password_reset_confirm(request, uidb64, token):
+    """Confirmar y establecer nueva contraseña"""
+    from django.contrib.auth.tokens import default_token_generator
+    from django.utils.http import urlsafe_base64_decode
+    from django.utils.encoding import force_str
+    
+    # Validar token
+    try:
+        uid = force_str(urlsafe_base64_decode(uidb64))
+        user = User.objects.get(pk=uid)
+    except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+        user = None
+    
+    # Verificar si el token es válido
+    if user is not None and default_token_generator.check_token(user, token):
+        if request.method == 'POST':
+            password = request.POST.get('password', '')
+            confirm_password = request.POST.get('confirm_password', '')
+            
+            # Validaciones
+            if not password or not confirm_password:
+                messages.error(request, 'Por favor completa ambos campos')
+                return render(request, 'accounts/password_reset_confirm.html', {
+                    'validlink': True,
+                    'uidb64': uidb64,
+                    'token': token,
+                })
+            
+            if password != confirm_password:
+                messages.error(request, 'Las contraseñas no coinciden')
+                return render(request, 'accounts/password_reset_confirm.html', {
+                    'validlink': True,
+                    'uidb64': uidb64,
+                    'token': token,
+                })
+            
+            if len(password) < 8:
+                messages.error(request, 'La contraseña debe tener al menos 8 caracteres')
+                return render(request, 'accounts/password_reset_confirm.html', {
+                    'validlink': True,
+                    'uidb64': uidb64,
+                    'token': token,
+                })
+            
+            # Establecer nueva contraseña
+            user.set_password(password)
+            user.save()
+            
+            messages.success(
+                request, 
+                '✓ Contraseña restablecida correctamente. Ya puedes iniciar sesión.'
+            )
+            print(f"🔐 Contraseña restablecida para: {user.username}")
+            return redirect('accounts:login')
+        
+        # GET request - mostrar formulario
+        return render(request, 'accounts/password_reset_confirm.html', {
+            'validlink': True,
+            'uidb64': uidb64,
+            'token': token,
+        })
+    else:
+        # Token inválido o expirado
+        messages.error(
+            request,
+            'El enlace de recuperación es inválido o ha expirado. '
+            'Por favor solicita uno nuevo.'
+        )
+        return redirect('accounts:password-reset')

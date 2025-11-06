@@ -1,0 +1,302 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Productos - Flash{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <!-- Sidebar Filters -->
+        <div class="col-lg-3">
+            <div class="card mb-4">
+                <div class="card-header bg-dark text-white">
+                    <h5 class="mb-0"><i class="fas fa-filter"></i> Filtros</h5>
+                </div>
+                <div class="card-body">
+                    <form method="get" id="filterForm">
+                        <h6 class="fw-bold mb-3">Categorías</h6>
+                        {% for category in categories %}
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="radio" name="category" value="{{ category.id }}" 
+                                   id="cat{{ category.id }}" {% if selected_category == category.id|stringformat:"s" %}checked{% endif %}
+                                   onchange="this.form.submit()">
+                            <label class="form-check-label" for="cat{{ category.id }}">
+                                {{ category.name }}
+                            </label>
+                        </div>
+                        {% endfor %}
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="radio" name="category" value="" 
+                                   id="catAll" {% if not selected_category %}checked{% endif %}
+                                   onchange="this.form.submit()">
+                            <label class="form-check-label" for="catAll">
+                                Todas las categorías
+                            </label>
+                        </div>
+                        
+                        <hr class="my-3">
+                        
+                        <h6 class="fw-bold mb-3">Rango de Precio</h6>
+                        <div class="mb-3">
+                            <input type="number" class="form-control form-control-sm mb-2" name="min_price" 
+                                   placeholder="Mínimo" value="{{ min_price_filter|default:'' }}" step="0.01">
+                            <input type="number" class="form-control form-control-sm" name="max_price" 
+                                   placeholder="Máximo" value="{{ max_price_filter|default:'' }}" step="0.01">
+                        </div>
+                        
+                        <hr class="my-3">
+                        
+                        <h6 class="fw-bold mb-3">Calificación</h6>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="radio" name="rating" value="4" id="rating4">
+                            <label class="form-check-label" for="rating4">
+                                <span class="text-warning">★★★★</span>☆ y más
+                            </label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="radio" name="rating" value="3" id="rating3">
+                            <label class="form-check-label" for="rating3">
+                                <span class="text-warning">★★★</span>☆☆ y más
+                            </label>
+                        </div>
+                        
+                        <!-- Mantener el parámetro de ordenamiento -->
+                        <input type="hidden" name="sort" value="{{ selected_sort }}">
+                        
+                        <button type="submit" class="btn btn-primary w-100 mt-3">Aplicar Filtros</button>
+                        <a href="{% url 'catalog:product-list' %}" class="btn btn-outline-secondary w-100 mt-2">Limpiar</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Products Grid -->
+        <div class="col-lg-9">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="mb-0">{{ page_title|default:"Todos los Productos" }}</h2>
+                    <p class="text-muted">{{ products|length }} productos encontrados</p>
+                </div>
+                <div>
+                    <form method="get" id="sortForm">
+                        <!-- Mantener filtros actuales -->
+                        {% if selected_category %}
+                        <input type="hidden" name="category" value="{{ selected_category }}">
+                        {% endif %}
+                        {% if min_price_filter %}
+                        <input type="hidden" name="min_price" value="{{ min_price_filter }}">
+                        {% endif %}
+                        {% if max_price_filter %}
+                        <input type="hidden" name="max_price" value="{{ max_price_filter }}">
+                        {% endif %}
+                        {% if query %}
+                        <input type="hidden" name="q" value="{{ query }}">
+                        {% endif %}
+                        
+                        <select name="sort" class="form-select" onchange="this.form.submit()">
+                            <option value="">Ordenar por</option>
+                            <option value="price_asc" {% if selected_sort == 'price_asc' %}selected{% endif %}>Precio: Menor a Mayor</option>
+                            <option value="price_desc" {% if selected_sort == 'price_desc' %}selected{% endif %}>Precio: Mayor a Menor</option>
+                            <option value="newest" {% if selected_sort == 'newest' %}selected{% endif %}>Más Recientes</option>
+                            <option value="popular" {% if selected_sort == 'popular' %}selected{% endif %}>Más Populares</option>
+                        </select>
+                    </form>
+                </div>
+            </div>
+
+            <div class="row g-4">
+                {% for product in products %}
+                <div class="col-md-6 col-xl-4">
+                    <div class="product-card">
+                        {% if product.images.first %}
+                        <img src="{{ product.images.first.image.url }}" alt="{{ product.name }}" class="product-image">
+                        {% else %}
+                        <img src="https://via.placeholder.com/250x250?text={{ product.name }}" alt="{{ product.name }}" class="product-image">
+                        {% endif %}
+                        
+                        <a href="{% url 'catalog:product-detail' product.slug %}" class="product-title">
+                            {{ product.name }}
+                        </a>
+                        
+                        <div class="product-rating mb-2">
+                            {% with avg_rating=product.reviews.all|length %}
+                            {% if avg_rating > 0 %}
+                                <span class="text-warning">
+                                    {% for i in "12345" %}
+                                        {% if forloop.counter <= avg_rating %}★{% else %}☆{% endif %}
+                                    {% endfor %}
+                                </span>
+                                <span class="text-muted">({{ avg_rating }})</span>
+                            {% else %}
+                                <span class="text-muted">Sin calificaciones</span>
+                            {% endif %}
+                            {% endwith %}
+                        </div>
+                        
+                        <div class="mb-2">
+                            <span class="product-price">${{ product.price }}</span>
+                        </div>
+                        
+                        <div class="mb-2">
+                            {% if product.stock > 0 %}
+                                <small class="text-success"><i class="fas fa-check-circle"></i> En stock</small>
+                            {% else %}
+                                <small class="text-danger"><i class="fas fa-times-circle"></i> Agotado</small>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="d-flex gap-2">
+                            {% if product.stock > 0 %}
+                            <button class="btn btn-add-cart flex-grow-1" data-product-id="{{ product.id }}">
+                                <i class="fas fa-shopping-cart"></i> Agregar
+                            </button>
+                            {% else %}
+                            <button class="btn btn-secondary flex-grow-1" disabled>Agotado</button>
+                            {% endif %}
+                            
+                            {% if user.is_authenticated %}
+                            <button class="btn btn-outline-danger btn-wishlist" data-product-id="{{ product.id }}" id="wishlist-btn-{{ product.id }}" title="Agregar a favoritos">
+                                <i class="far fa-heart"></i>
+                            </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-12 text-center py-5">
+                    <i class="fas fa-search fa-4x text-muted mb-3"></i>
+                    <h4>No se encontraron productos</h4>
+                    <p class="text-muted">Intenta con otros filtros o busca algo diferente</p>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Pagination -->
+            {% if products %}
+            <nav aria-label="Product pagination" class="mt-5">
+                <ul class="pagination justify-content-center">
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#" tabindex="-1">Anterior</a>
+                    </li>
+                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                    <li class="page-item"><a class="page-link" href="#">2</a></li>
+                    <li class="page-item"><a class="page-link" href="#">3</a></li>
+                    <li class="page-item">
+                        <a class="page-link" href="#">Siguiente</a>
+                    </li>
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+// Event listeners
+document.addEventListener('DOMContentLoaded', function() {
+    // Botones de agregar al carrito
+    document.querySelectorAll('.btn-add-cart').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const productId = this.dataset.productId;
+            addToCart(productId);
+        });
+    });
+    
+    // Botones de wishlist
+    document.querySelectorAll('.btn-wishlist').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const productId = this.dataset.productId;
+            toggleWishlist(productId);
+        });
+    });
+});
+
+function toggleWishlist(productId) {
+    const csrftoken = getCookie('csrftoken');
+    
+    if (!csrftoken) {
+        console.error('No se encontró el token CSRF');
+        alert('Error: No se pudo completar la acción. Por favor recarga la página.');
+        return;
+    }
+    
+    fetch('/cuenta/lista-deseos/agregar/' + productId + '/', {
+        method: 'POST',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRFToken': csrftoken
+        }
+    })
+    .then(response => {
+        if (response.status === 403) {
+            alert('Por favor inicia sesión para agregar productos a favoritos');
+            window.location.href = '/cuenta/login/';
+            return null;
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data && data.success) {
+            const btn = document.getElementById('wishlist-btn-' + productId);
+            const icon = btn.querySelector('i');
+            if (data.added) {
+                icon.classList.remove('far');
+                icon.classList.add('fas');
+                btn.classList.add('active');
+                alert('✓ Producto agregado a favoritos');
+            } else {
+                alert('ℹ Este producto ya está en tus favoritos');
+            }
+        } else if (data) {
+            alert(data.message || 'Error al agregar a favoritos');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error al agregar a favoritos. Por favor intenta nuevamente.');
+    });
+}
+
+function addToCart(productId) {
+    fetch('/carrito/agregar/' + productId + '/', {
+        method: 'POST',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRFToken': getCookie('csrftoken')
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        // Actualizar contador del carrito
+        const cartCount = document.querySelector('.cart-count');
+        if (cartCount && data.cart_count) {
+            cartCount.textContent = data.cart_count;
+        }
+        
+        if (data.success) {
+            console.log('Producto agregado:', data.message);
+        } else {
+            alert(data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error al agregar al carrito:', error);
+    });
+}
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+</script>
+{% endblock %}

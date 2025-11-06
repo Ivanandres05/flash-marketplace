@@ -1,0 +1,186 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Información de Envío - Flash{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <h1 class="mb-4">Información de Envío</h1>
+            
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h2 class="h4 mb-3">Envíos a Todo el País</h2>
+                    <p>En Flash Marketplace realizamos envíos a todas las ciudades y municipios de Colombia. Trabajamos con las mejores empresas de transporte para garantizar que tu pedido llegue en perfectas condiciones.</p>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h2 class="h4 mb-3">Tiempos de Entrega</h2>
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Destino</th>
+                                    <th>Tiempo Estimado</th>
+                                    <th>Costo</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Bogotá</td>
+                                    <td>1-2 días hábiles</td>
+                                    <td>$8.000 (Gratis en compras >$100.000)</td>
+                                </tr>
+                                <tr>
+                                    <td>Medellín, Cali, Barranquilla</td>
+                                    <td>2-3 días hábiles</td>
+                                    <td>$12.000 (Gratis en compras >$150.000)</td>
+                                </tr>
+                                <tr>
+                                    <td>Otras Ciudades Principales</td>
+                                    <td>3-5 días hábiles</td>
+                                    <td>$15.000 (Gratis en compras >$200.000)</td>
+                                </tr>
+                                <tr>
+                                    <td>Zonas Rurales</td>
+                                    <td>5-7 días hábiles</td>
+                                    <td>$20.000</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <p class="small text-muted">* Los tiempos de entrega son estimados y pueden variar según disponibilidad del producto y condiciones de transporte.</p>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h2 class="h4 mb-3">Proceso de Envío</h2>
+                    <div class="row">
+                        <div class="col-md-3 text-center mb-3">
+                            <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                                <i class="fas fa-check fa-2x"></i>
+                            </div>
+                            <h6>Confirmación</h6>
+                            <p class="small">Recibes confirmación de tu pedido por email</p>
+                        </div>
+                        <div class="col-md-3 text-center mb-3">
+                            <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                                <i class="fas fa-box fa-2x"></i>
+                            </div>
+                            <h6>Preparación</h6>
+                            <p class="small">Preparamos y empacamos tu pedido</p>
+                        </div>
+                        <div class="col-md-3 text-center mb-3">
+                            <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                                <i class="fas fa-truck fa-2x"></i>
+                            </div>
+                            <h6>Envío</h6>
+                            <p class="small">Tu pedido está en camino</p>
+                        </div>
+                        <div class="col-md-3 text-center mb-3">
+                            <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                                <i class="fas fa-home fa-2x"></i>
+                            </div>
+                            <h6>Entrega</h6>
+                            <p class="small">Recibe tu pedido</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h2 class="h4 mb-3">Rastreo de Pedidos</h2>
+                    <p>Una vez que tu pedido sea enviado, recibirás:</p>
+                    <ul>
+                        <li>Email con número de guía de rastreo</li>
+                        <li>Enlace para seguimiento en tiempo real</li>
+                        <li>Actualizaciones de estado del envío</li>
+                        <li>Notificación cuando esté cerca de tu ubicación</li>
+                    </ul>
+                    <p>También puedes rastrear tu pedido desde tu cuenta en la sección <a href="{% url 'accounts:orders' %}">Mis Pedidos</a>.</p>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h2 class="h4 mb-3">Empresas de Transporte</h2>
+                    <p>Trabajamos con las siguientes empresas de transporte confiables:</p>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="d-flex align-items-center p-3 border rounded">
+                                <i class="fas fa-truck fa-2x text-primary me-3"></i>
+                                <div>
+                                    <h6 class="mb-0">Servientrega</h6>
+                                    <small class="text-muted">Cobertura nacional</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="d-flex align-items-center p-3 border rounded">
+                                <i class="fas fa-truck fa-2x text-primary me-3"></i>
+                                <div>
+                                    <h6 class="mb-0">Coordinadora</h6>
+                                    <small class="text-muted">Envíos express</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="d-flex align-items-center p-3 border rounded">
+                                <i class="fas fa-truck fa-2x text-primary me-3"></i>
+                                <div>
+                                    <h6 class="mb-0">Deprisa</h6>
+                                    <small class="text-muted">Entregas rápidas</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="d-flex align-items-center p-3 border rounded">
+                                <i class="fas fa-truck fa-2x text-primary me-3"></i>
+                                <div>
+                                    <h6 class="mb-0">InterRapidísimo</h6>
+                                    <small class="text-muted">Servicio confiable</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h2 class="h4 mb-3">Política de Envíos Gratis</h2>
+                    <div class="alert alert-success">
+                        <i class="fas fa-gift me-2"></i>
+                        <strong>¡Envío Gratis!</strong> En compras superiores a $100.000 en Bogotá y $150.000 en otras ciudades principales.
+                    </div>
+                    <p>Aplica automáticamente en el checkout cuando tu pedido cumple con el monto mínimo.</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-body">
+                    <h2 class="h4 mb-3">Preguntas Frecuentes</h2>
+                    
+                    <h6>¿Puedo cambiar la dirección de envío después de realizar el pedido?</h6>
+                    <p class="mb-3">Sí, siempre que el pedido no haya sido enviado. Contacta a servicio al cliente lo antes posible.</p>
+
+                    <h6>¿Qué pasa si no estoy en casa cuando llegue el pedido?</h6>
+                    <p class="mb-3">La transportadora intentará entregarlo 2 veces. Si no estás, dejará un aviso para que coordines la entrega o lo recojas en la oficina más cercana.</p>
+
+                    <h6>¿Puedo recoger mi pedido en un punto de entrega?</h6>
+                    <p class="mb-3">Actualmente solo realizamos envíos a domicilio, pero estamos trabajando en habilitar puntos de recogida pronto.</p>
+
+                    <div class="text-center mt-4">
+                        <a href="{% url 'core:customer-service' %}" class="btn btn-primary">¿Más preguntas? Contáctanos</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

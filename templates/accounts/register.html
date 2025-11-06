@@ -1,0 +1,330 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Crear cuenta - Flash{% endblock %}
+
+{% block extra_css %}
+<style>
+    .auth-container {
+        max-width: 450px;
+        margin: 40px auto;
+        padding: 20px;
+    }
+
+    .auth-card {
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 30px;
+        background: white;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .auth-logo {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    .auth-logo h1 {
+        font-size: 32px;
+        font-weight: 700;
+        color: var(--flash-dark);
+        margin: 0;
+    }
+
+    .auth-logo .flash-text {
+        color: var(--flash-orange);
+    }
+
+    .auth-title {
+        font-size: 28px;
+        font-weight: 400;
+        margin-bottom: 10px;
+        color: var(--flash-dark);
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    .form-label {
+        display: block;
+        font-weight: 700;
+        font-size: 13px;
+        margin-bottom: 5px;
+        color: var(--flash-dark);
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #a6a6a6;
+        border-radius: 3px;
+        font-size: 14px;
+        transition: all 0.2s;
+    }
+
+    .form-control:focus {
+        border-color: var(--flash-orange);
+        box-shadow: 0 0 0 3px rgba(255, 153, 0, 0.1);
+        outline: none;
+    }
+
+    .form-control.error {
+        border-color: #d32f2f;
+    }
+
+    .form-text {
+        font-size: 12px;
+        color: #555;
+        margin-top: 5px;
+        display: block;
+    }
+
+    .error-message {
+        color: #d32f2f;
+        font-size: 12px;
+        margin-top: 5px;
+    }
+
+    .btn-auth {
+        width: 100%;
+        padding: 12px;
+        background: linear-gradient(to bottom, #f7dfa5, #f0c14b);
+        border: 1px solid #a88734;
+        border-radius: 3px;
+        color: #111;
+        font-weight: 700;
+        font-size: 14px;
+        cursor: pointer;
+        margin-top: 10px;
+        transition: all 0.2s;
+    }
+
+    .btn-auth:hover {
+        background: linear-gradient(to bottom, #f5d78e, #edb933);
+    }
+
+    .auth-divider {
+        margin: 20px 0;
+        position: relative;
+        text-align: center;
+    }
+
+    .auth-divider::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 50%;
+        height: 1px;
+        background: #e7e7e7;
+    }
+
+    .auth-divider span {
+        position: relative;
+        background: white;
+        padding: 0 10px;
+        color: #767676;
+        font-size: 12px;
+    }
+
+    .terms-text {
+        font-size: 12px;
+        color: #555;
+        margin: 15px 0;
+        line-height: 1.5;
+    }
+
+    .terms-text a {
+        color: #0066c0;
+        text-decoration: none;
+    }
+
+    .terms-text a:hover {
+        color: var(--flash-orange);
+        text-decoration: underline;
+    }
+
+    .signin-link {
+        margin-top: 20px;
+        padding-top: 20px;
+        border-top: 1px solid #e7e7e7;
+        font-size: 13px;
+        text-align: center;
+    }
+
+    .signin-link a {
+        color: #0066c0;
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    .signin-link a:hover {
+        color: var(--flash-orange);
+        text-decoration: underline;
+    }
+
+    .alert {
+        padding: 10px 15px;
+        border-radius: 4px;
+        margin-bottom: 15px;
+        font-size: 13px;
+    }
+
+    .alert-danger {
+        background-color: #f8d7da;
+        border: 1px solid #f5c6cb;
+        color: #721c24;
+    }
+
+    .form-row {
+        display: flex;
+        gap: 15px;
+    }
+
+    .form-row .form-group {
+        flex: 1;
+    }
+
+    .password-strength {
+        margin-top: 8px;
+        font-size: 12px;
+    }
+
+    .password-strength-bar {
+        height: 4px;
+        background: #e0e0e0;
+        border-radius: 2px;
+        margin-bottom: 5px;
+        overflow: hidden;
+    }
+
+    .password-strength-fill {
+        height: 100%;
+        transition: all 0.3s;
+        width: 0;
+    }
+
+    .strength-weak { background: #d32f2f; width: 33%; }
+    .strength-medium { background: #f57c00; width: 66%; }
+    .strength-strong { background: #388e3c; width: 100%; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-logo">
+        <h1>Flash<span class="flash-text">.</span></h1>
+    </div>
+
+    <div class="auth-card">
+        <h2 class="auth-title">Crear cuenta</h2>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <form method="post" action="{% url 'accounts:register' %}" id="registerForm">
+            {% csrf_token %}
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="first_name" class="form-label">Nombre</label>
+                    <input type="text" id="first_name" name="first_name" class="form-control" 
+                           value="{{ first_name|default:'' }}" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="last_name" class="form-label">Apellidos</label>
+                    <input type="text" id="last_name" name="last_name" class="form-control" 
+                           value="{{ last_name|default:'' }}" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="email" class="form-label">Correo electrónico</label>
+                <input type="email" id="email" name="email" class="form-control" 
+                       value="{{ email|default:'' }}" required>
+            </div>
+
+            <div class="form-group">
+                <label for="username" class="form-label">Nombre de usuario</label>
+                <input type="text" id="username" name="username" class="form-control" 
+                       value="{{ username|default:'' }}" required>
+                <span class="form-text">Debe tener al menos 4 caracteres</span>
+            </div>
+
+            <div class="form-group">
+                <label for="password1" class="form-label">Contraseña</label>
+                <input type="password" id="password1" name="password1" class="form-control" required>
+                <div class="password-strength">
+                    <div class="password-strength-bar">
+                        <div class="password-strength-fill" id="strengthBar"></div>
+                    </div>
+                    <span id="strengthText"></span>
+                </div>
+                <span class="form-text">Debe tener al menos 8 caracteres</span>
+            </div>
+
+            <div class="form-group">
+                <label for="password2" class="form-label">Confirmar contraseña</label>
+                <input type="password" id="password2" name="password2" class="form-control" required>
+            </div>
+
+            <div class="terms-text">
+                Al crear una cuenta, aceptas las <a href="#">Condiciones de Uso</a> y el <a href="#">Aviso de Privacidad</a> de Flash.
+            </div>
+
+            <button type="submit" class="btn-auth">Crear tu cuenta de Flash</button>
+        </form>
+
+        <div class="signin-link">
+            ¿Ya tienes una cuenta? <a href="{% url 'accounts:login' %}">Iniciar sesión</a>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('password1').addEventListener('input', function(e) {
+    const password = e.target.value;
+    const strengthBar = document.getElementById('strengthBar');
+    const strengthText = document.getElementById('strengthText');
+    
+    let strength = 0;
+    if (password.length >= 8) strength++;
+    if (password.match(/[a-z]/) && password.match(/[A-Z]/)) strength++;
+    if (password.match(/[0-9]/)) strength++;
+    if (password.match(/[^a-zA-Z0-9]/)) strength++;
+    
+    strengthBar.className = 'password-strength-fill';
+    
+    if (strength <= 1) {
+        strengthBar.classList.add('strength-weak');
+        strengthText.textContent = 'Contraseña débil';
+        strengthText.style.color = '#d32f2f';
+    } else if (strength <= 3) {
+        strengthBar.classList.add('strength-medium');
+        strengthText.textContent = 'Contraseña media';
+        strengthText.style.color = '#f57c00';
+    } else {
+        strengthBar.classList.add('strength-strong');
+        strengthText.textContent = 'Contraseña fuerte';
+        strengthText.style.color = '#388e3c';
+    }
+});
+
+document.getElementById('registerForm').addEventListener('submit', function(e) {
+    const password1 = document.getElementById('password1').value;
+    const password2 = document.getElementById('password2').value;
+    
+    if (password1 !== password2) {
+        e.preventDefault();
+        alert('Las contraseñas no coinciden');
+    }
+});
+</script>
+{% endblock %}
