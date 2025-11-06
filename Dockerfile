@@ -26,11 +26,16 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copiar el proyecto
 COPY . .
 
-# Recolectar archivos estáticos
-RUN python manage.py collectstatic --noinput || true
+# Crear directorios necesarios
+RUN mkdir -p staticfiles media logs
+
+# Recolectar archivos estáticos (fallar silenciosamente si hay error)
+RUN python manage.py collectstatic --noinput --settings=flash.settings.prod || echo "Collectstatic failed, will run later"
 
 # Exponer puerto
 EXPOSE 8000
 
-# Comando para ejecutar el servidor
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--workers", "2", "flash.wsgi:application"]
+# Comando para ejecutar migraciones y servidor
+CMD python manage.py migrate --noinput --settings=flash.settings.prod && \
+    python manage.py collectstatic --noinput --settings=flash.settings.prod && \
+    gunicorn --bind 0.0.0.0:8000 --workers 2 --timeout 120 flash.wsgi:application
