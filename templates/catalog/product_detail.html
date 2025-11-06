@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load custom_filters %}
 
 {% block title %}{{ product.name }} - Flash{% endblock %}
 
@@ -23,7 +24,7 @@
                 <!-- Main Image -->
                 <div class="main-image-container mb-3">
                     {% if product.images.first %}
-                    <img src="{{ product.images.first.image.url }}" alt="{{ product.name }}" class="product-detail-image" id="mainImage">
+                    <img src="{{ product.images.first.image|product_image_url }}" alt="{{ product.name }}" class="product-detail-image" id="mainImage">
                     {% else %}
                     <img src="https://via.placeholder.com/500x500?text={{ product.name }}" alt="{{ product.name }}" class="product-detail-image" id="mainImage">
                     {% endif %}
@@ -34,7 +35,7 @@
                     <div class="row g-2">
                         {% for image in product.images.all %}
                         <div class="col-3">
-                            <img src="{{ image.image.url }}" alt="{{ product.name }}" class="thumbnail-image" onclick="changeMainImage('{{ image.image.url }}')">
+                            <img src="{{ image.image|product_image_url }}" alt="{{ product.name }}" class="thumbnail-image" onclick="changeMainImage('{{ image.image|product_image_url }}')">
                         </div>
                         {% empty %}
                         <div class="col-3">
@@ -328,7 +329,7 @@
                 <div class="col-md-6 col-lg-3">
                     <div class="product-card">
                         {% if related.images.first %}
-                        <img src="{{ related.images.first.image.url }}" alt="{{ related.name }}" class="product-image">
+                        <img src="{{ related.images.first.image|product_image_url }}" alt="{{ related.name }}" class="product-image">
                         {% else %}
                         <img src="https://via.placeholder.com/250x250?text={{ related.name }}" alt="{{ related.name }}" class="product-image">
                         {% endif %}

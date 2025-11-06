@@ -16,15 +16,21 @@ def multiply(value, arg):
 def product_image_url(image_field):
     """
     Devuelve la URL correcta para imágenes de productos.
-    En producción, busca en static/products/
+    Siempre busca en static/products/ en producción.
     """
     if not image_field:
-        return static('img/no-image.png')
+        # Imagen por defecto
+        return "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=400&fit=crop"
     
+    # Extraer solo el nombre del archivo
     try:
-        # Intentar obtener la URL del media field
-        return image_field.url
-    except:
-        # Si falla, buscar en static/products/
-        filename = os.path.basename(str(image_field))
+        if hasattr(image_field, 'name'):
+            filename = os.path.basename(image_field.name)
+        else:
+            filename = os.path.basename(str(image_field))
+        
+        # Retornar URL desde static
         return static(f'products/{filename}')
+    except Exception as e:
+        # Si algo falla, retornar imagen por defecto
+        return "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=400&fit=crop"

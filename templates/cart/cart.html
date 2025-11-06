@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load custom_filters %}
 
 {% block title %}Carrito de Compras - Flash{% endblock %}
 
@@ -321,7 +322,7 @@
             {% for item in cart_items %}
             <div class="cart-item">
                 {% if item.product.images.first %}
-                <img src="{{ item.product.images.first.image.url }}" alt="{{ item.product.name }}" class="item-image">
+                <img src="{{ item.product.images.first.image|product_image_url }}" alt="{{ item.product.name }}" class="item-image">
                 {% else %}
                 <img src="{% static 'img/placeholder.jpg' %}" alt="{{ item.product.name }}" class="item-image">
                 {% endif %}

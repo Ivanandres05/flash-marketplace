@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load custom_filters %}
 
 {% block title %}Checkout - Flash{% endblock %}
 
@@ -508,7 +509,7 @@
                 {% for item in cart_items %}
                 <div class="summary-item">
                     {% if item.product.images.first %}
-                    <img src="{{ item.product.images.first.image.url }}" alt="{{ item.product.name }}" class="summary-item-image">
+                    <img src="{{ item.product.images.first.image|product_image_url }}" alt="{{ item.product.name }}" class="summary-item-image">
                     {% else %}
                     <img src="{% static 'img/placeholder.jpg' %}" alt="{{ item.product.name }}" class="summary-item-image">
                     {% endif %}
