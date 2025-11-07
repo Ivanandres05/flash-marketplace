@@ -37,5 +37,6 @@ EXPOSE 8000
 # Script de inicio
 CMD python manage.py migrate --noinput --settings=flash.settings.prod && \
     python manage.py fix_ivan_email --settings=flash.settings.prod && \
+    python manage.py clean_alternate_email --settings=flash.settings.prod && \
     python manage.py collectstatic --noinput --settings=flash.settings.prod && \
     gunicorn --bind 0.0.0.0:8000 --workers 2 --timeout 120 --log-level info flash.wsgi:application
