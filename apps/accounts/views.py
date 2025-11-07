@@ -364,6 +364,10 @@ def request_password_reset(request):
             import threading
             
             def send_reset_email():
+                import smtplib
+                from email.mime.text import MIMEText
+                from email.mime.multipart import MIMEMultipart
+                
                 subject = 'Código de Recuperación de Contraseña - Flash Marketplace'
                 message = f'''
 Hola {user_name},
@@ -380,17 +384,101 @@ Saludos,
 El equipo de Flash Marketplace
                 '''
                 
+                print(f"\n{'='*60}")
+                print(f"🔍 DIAGNÓSTICO SMTP DETALLADO")
+                print(f"{'='*60}")
+                
+                # Obtener configuración SMTP
+                smtp_host = django_settings.EMAIL_HOST
+                smtp_port = django_settings.EMAIL_PORT
+                smtp_user = django_settings.EMAIL_HOST_USER
+                smtp_password = django_settings.EMAIL_HOST_PASSWORD
+                use_tls = django_settings.EMAIL_USE_TLS
+                
+                print(f"📧 Configuración SMTP:")
+                print(f"  - Host: {smtp_host}")
+                print(f"  - Port: {smtp_port}")
+                print(f"  - TLS: {use_tls}")
+                print(f"  - Usuario: {smtp_user}")
+                print(f"  - Password: {'*' * len(smtp_password) if smtp_password else 'NO CONFIGURADO'}")
+                print(f"  - Desde: {from_email}")
+                print(f"  - Para: {destination_email_thread}")
+                print(f"{'='*60}\n")
+                
                 try:
-                    send_mail(
-                        subject,
-                        message,
-                        from_email,
-                        [destination_email_thread],
-                        fail_silently=True,
-                    )
-                    print(f"✓ Email enviado exitosamente a {destination_email_thread}")
+                    print("🔌 Intentando conexión SMTP...")
+                    
+                    # Crear conexión SMTP con timeout
+                    server = smtplib.SMTP(smtp_host, smtp_port, timeout=30)
+                    print(f"✅ Conexión establecida con {smtp_host}:{smtp_port}")
+                    
+                    # Habilitar modo debug para ver comunicación
+                    server.set_debuglevel(1)
+                    
+                    # Iniciar TLS
+                    if use_tls:
+                        print("🔐 Iniciando TLS...")
+                        server.starttls()
+                        print("✅ TLS activado")
+                    
+                    # Autenticación
+                    print(f"🔑 Autenticando como {smtp_user}...")
+                    server.login(smtp_user, smtp_password)
+                    print("✅ Autenticación exitosa")
+                    
+                    # Preparar mensaje
+                    msg = MIMEMultipart()
+                    msg['From'] = from_email
+                    msg['To'] = destination_email_thread
+                    msg['Subject'] = subject
+                    msg.attach(MIMEText(message, 'plain'))
+                    
+                    # Enviar
+                    print(f"📤 Enviando email...")
+                    result = server.send_message(msg)
+                    
+                    if result:
+                        print(f"⚠️ Algunos destinatarios fallaron: {result}")
+                    else:
+                        print(f"✅ Email enviado exitosamente a {destination_email_thread}")
+                    
+                    # Cerrar conexión
+                    server.quit()
+                    print("🔌 Conexión SMTP cerrada")
+                    print(f"{'='*60}\n")
+                    
+                except smtplib.SMTPAuthenticationError as e:
+                    print(f"\n❌ ERROR DE AUTENTICACIÓN:")
+                    print(f"   Código: {e.smtp_code}")
+                    print(f"   Mensaje: {e.smtp_error.decode() if hasattr(e.smtp_error, 'decode') else e.smtp_error}")
+                    print(f"   Verifica tu contraseña de aplicación de Gmail\n")
+                    print(f"{'='*60}\n")
+                    
+                except smtplib.SMTPRecipientsRefused as e:
+                    print(f"\n❌ DESTINATARIO RECHAZADO:")
+                    print(f"   Destinatarios rechazados: {e.recipients}")
+                    print(f"   Gmail puede estar bloqueando el envío\n")
+                    print(f"{'='*60}\n")
+                    
+                except smtplib.SMTPSenderRefused as e:
+                    print(f"\n❌ REMITENTE RECHAZADO:")
+                    print(f"   Código: {e.smtp_code}")
+                    print(f"   Mensaje: {e.smtp_error.decode() if hasattr(e.smtp_error, 'decode') else e.smtp_error}")
+                    print(f"   Remitente: {e.sender}\n")
+                    print(f"{'='*60}\n")
+                    
+                except smtplib.SMTPException as e:
+                    print(f"\n❌ ERROR SMTP:")
+                    print(f"   Tipo: {type(e).__name__}")
+                    print(f"   Mensaje: {str(e)}\n")
+                    print(f"{'='*60}\n")
+                    
                 except Exception as e:
-                    print(f"✗ Error al enviar email: {type(e).__name__}: {e}")
+                    print(f"\n❌ ERROR GENERAL:")
+                    print(f"   Tipo: {type(e).__name__}")
+                    print(f"   Mensaje: {str(e)}")
+                    print(f"   Args: {e.args}\n")
+                    print(f"{'='*60}\n")
             
             # Enviar en segundo plano - NO daemon para asegurar que termine
             email_thread = threading.Thread(target=send_reset_email)
