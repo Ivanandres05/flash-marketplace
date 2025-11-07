@@ -297,23 +297,31 @@ def request_password_reset(request):
     if request.method == 'POST':
         email = request.POST.get('email', '').strip()
         
+        if not email:
+            messages.error(request, 'Por favor ingresa un correo electrónico.')
+            return render(request, 'accounts/request_password_reset.html')
+        
         try:
             user = User.objects.get(email=email)
             
+            print(f"🔍 Usuario encontrado: {user.username} ({user.email})")
+            
             # Invalidar códigos anteriores no usados
-            PasswordResetCode.objects.filter(
-                user=user, 
-                is_used=False
-            ).update(is_used=True)
+            old_codes = PasswordResetCode.objects.filter(user=user, is_used=False).count()
+            PasswordResetCode.objects.filter(user=user, is_used=False).update(is_used=True)
+            print(f"🔄 Invalidados {old_codes} códigos antiguos")
             
             # Crear nuevo código
             reset_code = PasswordResetCode.objects.create(user=user)
+            print(f"✓ Código creado: {reset_code.code}")
             
             # Capturar variables para el thread
             user_name = user.first_name or user.username
             user_email = user.email
             code = reset_code.code
             from_email = settings.DEFAULT_FROM_EMAIL
+            
+            print(f"📧 Preparando envío desde: {from_email} a {user_email}")
             
             # Enviar email de forma asíncrona para no bloquear
             import threading
@@ -343,14 +351,15 @@ El equipo de Flash Marketplace
                         [user_email],
                         fail_silently=True,
                     )
-                    print(f"✓ Email enviado a {user_email}")
+                    print(f"✓ Email enviado exitosamente a {user_email}")
                 except Exception as e:
-                    print(f"✗ Error al enviar email: {e}")
+                    print(f"✗ Error al enviar email: {type(e).__name__}: {e}")
             
             # Enviar en segundo plano
             email_thread = threading.Thread(target=send_reset_email)
             email_thread.daemon = True
             email_thread.start()
+            print("🚀 Thread de email iniciado")
             
             # Guardar el email en la sesión para el siguiente paso
             request.session['reset_email'] = email
@@ -358,9 +367,16 @@ El equipo de Flash Marketplace
             return redirect('accounts:verify-reset-code')
                 
         except User.DoesNotExist:
+            print(f"⚠️  Usuario no encontrado con email: {email}")
             # Por seguridad, no revelar si el email existe o no
             messages.success(request, f'Si el email {email} está registrado, recibirás un código de verificación.')
             return redirect('accounts:verify-reset-code')
+        except Exception as e:
+            print(f"❌ ERROR CRÍTICO: {type(e).__name__}: {e}")
+            import traceback
+            traceback.print_exc()
+            messages.error(request, 'Ocurrió un error al procesar tu solicitud. Por favor intenta de nuevo.')
+            return render(request, 'accounts/request_password_reset.html')
     
     return render(request, 'accounts/request_password_reset.html')
 
