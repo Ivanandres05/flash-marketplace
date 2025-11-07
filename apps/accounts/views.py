@@ -355,11 +355,15 @@ El equipo de Flash Marketplace
                 except Exception as e:
                     print(f"✗ Error al enviar email: {type(e).__name__}: {e}")
             
-            # Enviar en segundo plano
+            # Enviar en segundo plano - NO daemon para asegurar que termine
             email_thread = threading.Thread(target=send_reset_email)
-            email_thread.daemon = True
+            email_thread.daemon = False  # Cambiado a False para que termine antes de cerrar
             email_thread.start()
             print("🚀 Thread de email iniciado")
+            
+            # Esperar máximo 5 segundos a que termine el envío
+            email_thread.join(timeout=5.0)
+            print("✅ Thread finalizado o timeout alcanzado")
             
             # Guardar el email en la sesión para el siguiente paso
             request.session['reset_email'] = email
