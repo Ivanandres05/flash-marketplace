@@ -1,5 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.utils import timezone
+import random
+import string
 
 # Comentamos el User personalizado para usar el estándar de Django
 # class User(AbstractUser):
@@ -96,4 +99,38 @@ class PaymentMethod(models.Model):
         # Si es la tarjeta predeterminada, quitar el default de las demás
         if self.is_default:
             PaymentMethod.objects.filter(user=self.user, is_default=True).update(is_default=False)
+        super().save(*args, **kwargs)
+
+
+class PasswordResetCode(models.Model):
+    """Códigos de recuperación de contraseña"""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='password_reset_codes')
+    code = models.CharField(max_length=6, verbose_name="Código de verificación")
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField(verbose_name="Expira en")
+    is_used = models.BooleanField(default=False, verbose_name="Usado")
+    
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = "Código de recuperación"
+        verbose_name_plural = "Códigos de recuperación"
+    
+    def __str__(self):
+        return f"{self.user.email} - {self.code}"
+    
+    @staticmethod
+    def generate_code():
+        """Genera un código de 6 dígitos"""
+        return ''.join(random.choices(string.digits, k=6))
+    
+    def is_valid(self):
+        """Verifica si el código es válido (no usado y no expirado)"""
+        return not self.is_used and timezone.now() < self.expires_at
+    
+    def save(self, *args, **kwargs):
+        if not self.code:
+            self.code = self.generate_code()
+        if not self.expires_at:
+            # El código expira en 15 minutos
+            self.expires_at = timezone.now() + timezone.timedelta(minutes=15)
         super().save(*args, **kwargs)

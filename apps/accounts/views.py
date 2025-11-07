@@ -278,6 +278,174 @@ def logout_view(request):
     messages.success(request, 'Has cerrado sesión correctamente')
     return redirect('core:home')
 
+
+# ========== RECUPERACIÓN DE CONTRASEÑA ==========
+
+def request_password_reset(request):
+    """Solicitar código de recuperación de contraseña"""
+    if request.user.is_authenticated:
+        return redirect('core:home')
+    
+    if request.method == 'POST':
+        email = request.POST.get('email', '').strip()
+        
+        try:
+            user = User.objects.get(email=email)
+            
+            # Crear código de recuperación
+            from .models import PasswordResetCode
+            from django.utils import timezone
+            
+            # Invalidar códigos anteriores no usados
+            PasswordResetCode.objects.filter(
+                user=user, 
+                is_used=False
+            ).update(is_used=True)
+            
+            # Crear nuevo código
+            reset_code = PasswordResetCode.objects.create(user=user)
+            
+            # Enviar email
+            from django.core.mail import send_mail
+            from django.conf import settings
+            
+            subject = 'Código de Recuperación de Contraseña - Flash Marketplace'
+            message = f'''
+Hola {user.first_name or user.username},
+
+Has solicitado restablecer tu contraseña en Flash Marketplace.
+
+Tu código de verificación es: {reset_code.code}
+
+Este código expirará en 15 minutos.
+
+Si no solicitaste este cambio, ignora este correo.
+
+Saludos,
+El equipo de Flash Marketplace
+            '''
+            
+            try:
+                send_mail(
+                    subject,
+                    message,
+                    settings.DEFAULT_FROM_EMAIL,
+                    [user.email],
+                    fail_silently=False,
+                )
+                
+                # Guardar el email en la sesión para el siguiente paso
+                request.session['reset_email'] = email
+                messages.success(request, f'Se ha enviado un código de verificación a {email}')
+                return redirect('accounts:verify-reset-code')
+                
+            except Exception as e:
+                print(f"Error al enviar email: {e}")
+                messages.error(request, 'Hubo un error al enviar el email. Por favor intenta de nuevo.')
+                
+        except User.DoesNotExist:
+            # Por seguridad, no revelar si el email existe o no
+            messages.success(request, f'Si el email {email} está registrado, recibirás un código de verificación.')
+            return redirect('accounts:verify-reset-code')
+    
+    return render(request, 'accounts/request_password_reset.html')
+
+
+def verify_reset_code(request):
+    """Verificar el código de recuperación"""
+    if request.user.is_authenticated:
+        return redirect('core:home')
+    
+    email = request.session.get('reset_email')
+    if not email:
+        messages.error(request, 'Por favor solicita primero un código de recuperación')
+        return redirect('accounts:request-password-reset')
+    
+    if request.method == 'POST':
+        code = request.POST.get('code', '').strip()
+        
+        try:
+            user = User.objects.get(email=email)
+            from .models import PasswordResetCode
+            from django.utils import timezone
+            
+            # Buscar código válido
+            reset_code = PasswordResetCode.objects.filter(
+                user=user,
+                code=code,
+                is_used=False,
+                expires_at__gt=timezone.now()
+            ).first()
+            
+            if reset_code:
+                # Código válido - guardar en sesión y redirigir
+                request.session['reset_code_id'] = reset_code.id
+                messages.success(request, 'Código verificado correctamente')
+                return redirect('accounts:reset-password')
+            else:
+                messages.error(request, 'Código inválido o expirado')
+                
+        except User.DoesNotExist:
+            messages.error(request, 'Error en la verificación')
+            return redirect('accounts:request-password-reset')
+    
+    return render(request, 'accounts/verify_reset_code.html', {'email': email})
+
+
+def reset_password(request):
+    """Cambiar la contraseña con código verificado"""
+    if request.user.is_authenticated:
+        return redirect('core:home')
+    
+    reset_code_id = request.session.get('reset_code_id')
+    if not reset_code_id:
+        messages.error(request, 'Por favor verifica primero tu código')
+        return redirect('accounts:verify-reset-code')
+    
+    if request.method == 'POST':
+        password1 = request.POST.get('password1', '')
+        password2 = request.POST.get('password2', '')
+        
+        if password1 != password2:
+            messages.error(request, 'Las contraseñas no coinciden')
+            return render(request, 'accounts/reset_password.html')
+        
+        if len(password1) < 8:
+            messages.error(request, 'La contraseña debe tener al menos 8 caracteres')
+            return render(request, 'accounts/reset_password.html')
+        
+        try:
+            from .models import PasswordResetCode
+            reset_code = PasswordResetCode.objects.get(id=reset_code_id)
+            
+            if reset_code.is_valid():
+                # Cambiar contraseña
+                user = reset_code.user
+                user.set_password(password1)
+                user.save()
+                
+                # Marcar código como usado
+                reset_code.is_used = True
+                reset_code.save()
+                
+                # Limpiar sesión
+                if 'reset_email' in request.session:
+                    del request.session['reset_email']
+                if 'reset_code_id' in request.session:
+                    del request.session['reset_code_id']
+                
+                messages.success(request, '¡Contraseña cambiada exitosamente! Ya puedes iniciar sesión.')
+                return redirect('accounts:login')
+            else:
+                messages.error(request, 'El código ha expirado o ya fue usado')
+                return redirect('accounts:request-password-reset')
+                
+        except PasswordResetCode.DoesNotExist:
+            messages.error(request, 'Error en la verificación')
+            return redirect('accounts:request-password-reset')
+    
+    return render(request, 'accounts/reset_password.html')
+
 @login_required
 def payment_methods(request):
     """Gestionar métodos de pago del usuario"""

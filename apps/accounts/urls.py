@@ -22,6 +22,13 @@ urlpatterns = [
     path('mis-resenas/', views.my_reviews, name='my-reviews'),
     path('configuracion/', views.settings, name='settings'),
     path('cambiar-contrasena/', views.change_password, name='change-password'),
+    
+    # Recuperación de contraseña con código por email
+    path('solicitar-recuperacion/', views.request_password_reset, name='request-password-reset'),
+    path('verificar-codigo/', views.verify_reset_code, name='verify-reset-code'),
+    path('restablecer-contrasena/', views.reset_password, name='reset-password'),
+    
+    # URLs antiguas (mantener para compatibilidad)
     path('recuperar-contrasena/', views.password_reset_request, name='password-reset'),
     path('restablecer/<uidb64>/<token>/', views.password_reset_confirm, name='password-reset-confirm'),
     path('eliminar-cuenta/', views.delete_account, name='delete-account'),
