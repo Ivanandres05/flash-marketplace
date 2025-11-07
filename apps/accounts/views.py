@@ -315,13 +315,20 @@ def request_password_reset(request):
             reset_code = PasswordResetCode.objects.create(user=user)
             print(f"✓ Código creado: {reset_code.code}")
             
+            # Determinar email de destino: usar email alternativo si existe
+            profile = user.profile
+            destination_email = profile.alternate_email if profile.alternate_email else user.email
+            
+            print(f"📧 Email de destino: {destination_email} {'(alternativo)' if profile.alternate_email else '(principal)'}")
+            
             # Capturar variables para el thread
             user_name = user.first_name or user.username
             user_email = user.email
+            destination_email_thread = destination_email
             code = reset_code.code
             from_email = django_settings.DEFAULT_FROM_EMAIL
             
-            print(f"📧 Preparando envío desde: {from_email} a {user_email}")
+            print(f"📧 Preparando envío desde: {from_email} a {destination_email_thread}")
             
             # Enviar email de forma asíncrona para no bloquear
             import threading
@@ -348,10 +355,10 @@ El equipo de Flash Marketplace
                         subject,
                         message,
                         from_email,
-                        [user_email],
+                        [destination_email_thread],
                         fail_silently=True,
                     )
-                    print(f"✓ Email enviado exitosamente a {user_email}")
+                    print(f"✓ Email enviado exitosamente a {destination_email_thread}")
                 except Exception as e:
                     print(f"✗ Error al enviar email: {type(e).__name__}: {e}")
             
@@ -367,7 +374,13 @@ El equipo de Flash Marketplace
             
             # Guardar el email en la sesión para el siguiente paso
             request.session['reset_email'] = email
-            messages.success(request, f'Se ha enviado un código de verificación a {email}')
+            
+            # Mensaje personalizado según donde se envió
+            if destination_email_thread != user_email:
+                messages.success(request, f'Se ha enviado un código de verificación a tu correo alternativo: {destination_email_thread}')
+            else:
+                messages.success(request, f'Se ha enviado un código de verificación a {email}')
+            
             return redirect('accounts:verify-reset-code')
                 
         except User.DoesNotExist:
