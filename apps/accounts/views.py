@@ -309,17 +309,23 @@ def request_password_reset(request):
             # Crear nuevo código
             reset_code = PasswordResetCode.objects.create(user=user)
             
+            # Capturar variables para el thread
+            user_name = user.first_name or user.username
+            user_email = user.email
+            code = reset_code.code
+            from_email = settings.DEFAULT_FROM_EMAIL
+            
             # Enviar email de forma asíncrona para no bloquear
             import threading
             
             def send_reset_email():
                 subject = 'Código de Recuperación de Contraseña - Flash Marketplace'
                 message = f'''
-Hola {user.first_name or user.username},
+Hola {user_name},
 
 Has solicitado restablecer tu contraseña en Flash Marketplace.
 
-Tu código de verificación es: {reset_code.code}
+Tu código de verificación es: {code}
 
 Este código expirará en 15 minutos.
 
@@ -333,11 +339,11 @@ El equipo de Flash Marketplace
                     send_mail(
                         subject,
                         message,
-                        settings.DEFAULT_FROM_EMAIL,
-                        [user.email],
+                        from_email,
+                        [user_email],
                         fail_silently=True,
                     )
-                    print(f"✓ Email enviado a {user.email}")
+                    print(f"✓ Email enviado a {user_email}")
                 except Exception as e:
                     print(f"✗ Error al enviar email: {e}")
             
