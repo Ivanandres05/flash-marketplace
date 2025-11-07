@@ -39,5 +39,6 @@ EXPOSE 8000
 
 # Comando para ejecutar migraciones y servidor
 CMD python manage.py migrate --noinput --settings=flash.settings.prod && \
+    python manage.py delete_ivanandres05 --settings=flash.settings.prod || echo "Usuario ya eliminado" && \
     python manage.py collectstatic --noinput --clear --settings=flash.settings.prod || echo "Collectstatic warning ignored" && \
     gunicorn --bind 0.0.0.0:8000 --workers 3 --threads 2 --timeout 300 --graceful-timeout 120 --keep-alive 5 --log-level info flash.wsgi:application
