@@ -5,7 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.views.decorators.http import require_POST
 from django.core.mail import send_mail
-from django.conf import settings
+from django.conf import settings as django_settings
 from django.utils import timezone
 from .models import Profile, Address, PasswordResetCode
 
@@ -319,7 +319,7 @@ def request_password_reset(request):
             user_name = user.first_name or user.username
             user_email = user.email
             code = reset_code.code
-            from_email = settings.DEFAULT_FROM_EMAIL
+            from_email = django_settings.DEFAULT_FROM_EMAIL
             
             print(f"📧 Preparando envío desde: {from_email} a {user_email}")
             
