@@ -14,6 +14,7 @@ class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     address = models.CharField(max_length=255, blank=True)
     phone_number = models.CharField(max_length=15, blank=True)
+    alternate_email = models.EmailField(blank=True, null=True, verbose_name="Correo alternativo")
     
     # Preferencias de notificaciones
     email_notifications = models.BooleanField(default=True, verbose_name="Recibir notificaciones por email")

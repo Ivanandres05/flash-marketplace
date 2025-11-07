@@ -155,8 +155,12 @@ def profile_view(request):
         # Actualizar información personal
         request.user.first_name = request.POST.get('first_name', '')
         request.user.last_name = request.POST.get('last_name', '')
-        request.user.email = request.POST.get('email', '')
         request.user.save()
+        
+        # Actualizar correo alternativo en el perfil
+        profile.alternate_email = request.POST.get('alternate_email', '')
+        profile.phone_number = request.POST.get('phone_number', '')
+        profile.save()
         
         messages.success(request, 'Información actualizada correctamente')
         return redirect('accounts:profile')
@@ -171,6 +175,7 @@ def profile_view(request):
     
     context = {
         'orders': orders,
+        'profile': profile,
     }
     
     return render(request, 'accounts/profile.html', context)
