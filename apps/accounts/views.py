@@ -161,9 +161,20 @@ def profile_view(request):
         request.user.save()
         
         # Actualizar correo alternativo en el perfil
-        profile.alternate_email = request.POST.get('alternate_email', '')
-        profile.phone_number = request.POST.get('phone_number', '')
+        alternate_email = request.POST.get('alternate_email', '').strip()
+        phone_number = request.POST.get('phone_number', '').strip()
+        
+        print(f"💾 Guardando perfil de {request.user.username}")
+        print(f"   Email alternativo recibido: '{alternate_email}'")
+        print(f"   Teléfono recibido: '{phone_number}'")
+        
+        profile.alternate_email = alternate_email
+        profile.phone_number = phone_number
         profile.save()
+        
+        # Verificar que se guardó
+        profile.refresh_from_db()
+        print(f"   ✅ Email alternativo en BD después de guardar: '{profile.alternate_email}'")
         
         messages.success(request, 'Información actualizada correctamente')
         return redirect('accounts:profile')
