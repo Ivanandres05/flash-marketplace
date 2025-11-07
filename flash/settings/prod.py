@@ -60,15 +60,19 @@ DATABASES = {
         default=config('DATABASE_URL'),
         conn_max_age=600,
         conn_health_checks=True,
-        ssl_require=True,
     )
 }
 
-# Cache
+# Configurar SSL si es necesario
+if 'sslmode' not in DATABASES['default'].get('OPTIONS', {}):
+    DATABASES['default']['OPTIONS'] = DATABASES['default'].get('OPTIONS', {})
+    DATABASES['default']['OPTIONS']['sslmode'] = 'require'
+
+# Cache - Usar memoria si Redis no está disponible
 CACHES = {
     'default': {
-        'BACKEND': 'django.core.cache.backends.redis.RedisCache',
-        'LOCATION': config('REDIS_URL', default='redis://127.0.0.1:6379/1'),
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'unique-snowflake',
     }
 }
 

@@ -309,9 +309,12 @@ def request_password_reset(request):
             # Crear nuevo código
             reset_code = PasswordResetCode.objects.create(user=user)
             
-            # Enviar email
-            subject = 'Código de Recuperación de Contraseña - Flash Marketplace'
-            message = f'''
+            # Enviar email de forma asíncrona para no bloquear
+            import threading
+            
+            def send_reset_email():
+                subject = 'Código de Recuperación de Contraseña - Flash Marketplace'
+                message = f'''
 Hola {user.first_name or user.username},
 
 Has solicitado restablecer tu contraseña en Flash Marketplace.
@@ -324,25 +327,29 @@ Si no solicitaste este cambio, ignora este correo.
 
 Saludos,
 El equipo de Flash Marketplace
-            '''
+                '''
+                
+                try:
+                    send_mail(
+                        subject,
+                        message,
+                        settings.DEFAULT_FROM_EMAIL,
+                        [user.email],
+                        fail_silently=True,
+                    )
+                    print(f"✓ Email enviado a {user.email}")
+                except Exception as e:
+                    print(f"✗ Error al enviar email: {e}")
             
-            try:
-                send_mail(
-                    subject,
-                    message,
-                    settings.DEFAULT_FROM_EMAIL,
-                    [user.email],
-                    fail_silently=False,
-                )
-                
-                # Guardar el email en la sesión para el siguiente paso
-                request.session['reset_email'] = email
-                messages.success(request, f'Se ha enviado un código de verificación a {email}')
-                return redirect('accounts:verify-reset-code')
-                
-            except Exception as e:
-                print(f"Error al enviar email: {e}")
-                messages.error(request, 'Hubo un error al enviar el email. Por favor intenta de nuevo.')
+            # Enviar en segundo plano
+            email_thread = threading.Thread(target=send_reset_email)
+            email_thread.daemon = True
+            email_thread.start()
+            
+            # Guardar el email en la sesión para el siguiente paso
+            request.session['reset_email'] = email
+            messages.success(request, f'Se ha enviado un código de verificación a {email}')
+            return redirect('accounts:verify-reset-code')
                 
         except User.DoesNotExist:
             # Por seguridad, no revelar si el email existe o no
