@@ -316,10 +316,15 @@ def request_password_reset(request):
             print(f"✓ Código creado: {reset_code.code}")
             
             # Determinar email de destino: usar email alternativo si existe
-            profile = user.profile
-            destination_email = profile.alternate_email if profile.alternate_email else user.email
+            try:
+                profile = user.profile
+                destination_email = profile.alternate_email if (profile.alternate_email and profile.alternate_email.strip()) else user.email
+                print(f"📧 Email alternativo en BD: '{profile.alternate_email}'")
+            except Exception as e:
+                print(f"⚠️  Error al obtener profile: {e}")
+                destination_email = user.email
             
-            print(f"📧 Email de destino: {destination_email} {'(alternativo)' if profile.alternate_email else '(principal)'}")
+            print(f"📧 Email de destino final: {destination_email} {'(alternativo)' if destination_email != user.email else '(principal)'}")
             
             # Capturar variables para el thread
             user_name = user.first_name or user.username
