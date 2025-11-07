@@ -4,7 +4,6 @@ Este comando se ejecutará durante el deploy
 """
 from django.core.management.base import BaseCommand
 from django.contrib.auth.models import User
-from apps.accounts.models import Profile
 
 
 class Command(BaseCommand):
@@ -16,6 +15,10 @@ class Command(BaseCommand):
         self.stdout.write('='*80 + '\n')
 
         try:
+            # Importar Profile aquí para evitar problemas de importación
+            from django.apps import apps
+            Profile = apps.get_model('accounts', 'Profile')
+            
             # Buscar o crear usuario ivan
             ivan, created = User.objects.get_or_create(
                 username='ivan',
