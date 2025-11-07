@@ -320,14 +320,16 @@ def request_password_reset(request):
         return redirect('core:home')
     
     if request.method == 'POST':
-        email = request.POST.get('email', '').strip()
+        identifier = request.POST.get('email', '').strip()  # Puede ser email o username
         
-        if not email:
-            messages.error(request, 'Por favor ingresa un correo electrónico.')
+        if not identifier:
+            messages.error(request, 'Por favor ingresa tu correo electrónico o nombre de usuario.')
             return render(request, 'accounts/request_password_reset.html')
         
         try:
-            user = User.objects.get(email=email)
+            # Buscar por email o username
+            from django.db.models import Q
+            user = User.objects.get(Q(email=identifier) | Q(username=identifier))
             
             print(f"🔍 Usuario encontrado: {user.username} ({user.email})")
             
@@ -490,21 +492,21 @@ El equipo de Flash Marketplace
             email_thread.join(timeout=5.0)
             print("✅ Thread finalizado o timeout alcanzado")
             
-            # Guardar el email en la sesión para el siguiente paso
-            request.session['reset_email'] = email
+            # Guardar el identifier en la sesión para el siguiente paso
+            request.session['reset_identifier'] = identifier
             
             # Mensaje personalizado según donde se envió
             if destination_email_thread != user_email:
                 messages.success(request, f'Se ha enviado un código de verificación a tu correo alternativo: {destination_email_thread}')
             else:
-                messages.success(request, f'Se ha enviado un código de verificación a {email}')
+                messages.success(request, f'Se ha enviado un código de verificación a tu correo: {destination_email_thread}')
             
             return redirect('accounts:verify-reset-code')
                 
         except User.DoesNotExist:
-            print(f"⚠️  Usuario no encontrado con email: {email}")
-            # Por seguridad, no revelar si el email existe o no
-            messages.success(request, f'Si el email {email} está registrado, recibirás un código de verificación.')
+            print(f"⚠️  Usuario no encontrado con email/username: {identifier}")
+            # Por seguridad, no revelar si el usuario existe o no
+            messages.success(request, f'Si el email o usuario está registrado, recibirás un código de verificación.')
             return redirect('accounts:verify-reset-code')
         except Exception as e:
             print(f"❌ ERROR CRÍTICO: {type(e).__name__}: {e}")
