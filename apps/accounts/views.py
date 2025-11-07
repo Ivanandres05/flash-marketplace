@@ -4,7 +4,10 @@ from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.views.decorators.http import require_POST
-from .models import Profile, Address
+from django.core.mail import send_mail
+from django.conf import settings
+from django.utils import timezone
+from .models import Profile, Address, PasswordResetCode
 
 def login_view(request):
     if request.user.is_authenticated:
@@ -297,10 +300,6 @@ def request_password_reset(request):
         try:
             user = User.objects.get(email=email)
             
-            # Crear código de recuperación
-            from .models import PasswordResetCode
-            from django.utils import timezone
-            
             # Invalidar códigos anteriores no usados
             PasswordResetCode.objects.filter(
                 user=user, 
@@ -311,9 +310,6 @@ def request_password_reset(request):
             reset_code = PasswordResetCode.objects.create(user=user)
             
             # Enviar email
-            from django.core.mail import send_mail
-            from django.conf import settings
-            
             subject = 'Código de Recuperación de Contraseña - Flash Marketplace'
             message = f'''
 Hola {user.first_name or user.username},
