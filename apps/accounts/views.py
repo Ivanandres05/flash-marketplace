@@ -154,7 +154,14 @@ def profile_view(request):
     # Asegurarnos de que el usuario tenga un perfil
     profile, created = Profile.objects.get_or_create(user=request.user)
     
+    print(f"📊 Profile view - Usuario: {request.user.username}, Método: {request.method}")
+    print(f"   Email alternativo actual en BD: '{profile.alternate_email}'")
+    
     if request.method == 'POST':
+        print(f"📝 POST recibido - Datos completos:")
+        for key, value in request.POST.items():
+            print(f"   {key}: '{value}'")
+        
         # Actualizar información personal
         request.user.first_name = request.POST.get('first_name', '')
         request.user.last_name = request.POST.get('last_name', '')
@@ -167,14 +174,21 @@ def profile_view(request):
         print(f"💾 Guardando perfil de {request.user.username}")
         print(f"   Email alternativo recibido: '{alternate_email}'")
         print(f"   Teléfono recibido: '{phone_number}'")
+        print(f"   Email alternativo ANTES de guardar: '{profile.alternate_email}'")
         
-        profile.alternate_email = alternate_email
-        profile.phone_number = phone_number
-        profile.save()
+        profile.alternate_email = alternate_email if alternate_email else None
+        profile.phone_number = phone_number if phone_number else None
+        
+        try:
+            profile.save()
+            print(f"   ✅ Profile.save() ejecutado sin errores")
+        except Exception as e:
+            print(f"   ❌ ERROR al guardar profile: {type(e).__name__}: {e}")
         
         # Verificar que se guardó
         profile.refresh_from_db()
-        print(f"   ✅ Email alternativo en BD después de guardar: '{profile.alternate_email}'")
+        print(f"   ✅ Email alternativo en BD DESPUÉS de guardar: '{profile.alternate_email}'")
+        print(f"   ✅ Teléfono en BD DESPUÉS de guardar: '{profile.phone_number}'")
         
         messages.success(request, 'Información actualizada correctamente')
         return redirect('accounts:profile')
