@@ -31,13 +31,10 @@ COPY . .
 # Crear directorios necesarios
 RUN mkdir -p staticfiles media logs
 
-# Recolectar archivos estáticos (fallar silenciosamente si hay error)
-RUN python manage.py collectstatic --noinput --settings=flash.settings.prod || echo "Collectstatic failed, will run later"
-
 # Exponer puerto
 EXPOSE 8000
 
-# Comando para ejecutar migraciones y servidor
+# Script de inicio
 CMD python manage.py migrate --noinput --settings=flash.settings.prod && \
-    python manage.py collectstatic --noinput --clear --settings=flash.settings.prod || echo "Collectstatic warning ignored" && \
-    gunicorn --bind 0.0.0.0:8000 --workers 3 --threads 2 --timeout 300 --graceful-timeout 120 --keep-alive 5 --log-level info flash.wsgi:application
+    python manage.py collectstatic --noinput --settings=flash.settings.prod && \
+    gunicorn --bind 0.0.0.0:8000 --workers 2 --timeout 120 --log-level info flash.wsgi:application
