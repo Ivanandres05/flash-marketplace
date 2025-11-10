@@ -1,0 +1,48 @@
+📋 VARIABLES DE ENTORNO PARA RENDER - COPIAR Y PEGAR
+================================================================
+
+Ir a: https://dashboard.render.com/web/srv-ctbkfabtq21c73ahqj60
+Pestaña: Environment
+Acción: Agregar/Actualizar estas variables
+
+================================================================
+VARIABLES A CONFIGURAR:
+================================================================
+
+EMAIL_BACKEND
+django.core.mail.backends.smtp.EmailBackend
+
+EMAIL_HOST
+smtp.gmail.com
+
+EMAIL_PORT
+587
+
+EMAIL_USE_TLS
+True
+
+EMAIL_HOST_USER
+ivanandreshernandezc@gmail.com
+
+EMAIL_HOST_PASSWORD
+qnndnwjglmtkiyir
+
+DEFAULT_FROM_EMAIL
+ivanandreshernandezc@gmail.com
+
+================================================================
+NOTA: La contraseña es sin espacios: qnndnwjglmtkiyir
+================================================================
+
+PASOS:
+1. Ir al dashboard de Render
+2. Seleccionar servicio "flash-marketplace"
+3. Ir a pestaña "Environment"
+4. Agregar cada variable (clic en "Add Environment Variable")
+5. Copiar nombre y valor exactos de arriba
+6. Hacer clic en "Save Changes"
+7. Render redesplegar automáticamente (~2-3 min)
+8. Probar recuperación de contraseña en:
+   https://flash-marketplace.onrender.com/cuentas/solicitar-recuperacion/
+
+================================================================
