@@ -111,16 +111,18 @@ LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 
 # Email Configuration
-# SendGrid API para envío de correos en producción
-SENDGRID_API_KEY = os.environ.get('SENDGRID_API_KEY', '')
+# Gmail SMTP para envío de correos (producción y desarrollo)
 EMAIL_BACKEND = os.environ.get('EMAIL_BACKEND', 'django.core.mail.backends.console.EmailBackend')
-EMAIL_HOST = os.environ.get('EMAIL_HOST', 'smtp.sendgrid.net')
+EMAIL_HOST = os.environ.get('EMAIL_HOST', 'smtp.gmail.com')
 EMAIL_PORT = int(os.environ.get('EMAIL_PORT', 587))
 EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', 'True') == 'True'
-EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', 'apikey')
-EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', SENDGRID_API_KEY)
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', 'ivanandreshernandezc@gmail.com')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
 DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'ivanandreshernandezc@gmail.com')
 SERVER_EMAIL = DEFAULT_FROM_EMAIL
+
+# Backward compatibility con SendGrid (opcional)
+SENDGRID_API_KEY = os.environ.get('SENDGRID_API_KEY', '')
 
 # Password Reset Token Expiry (24 horas)
 PASSWORD_RESET_TIMEOUT = 86400

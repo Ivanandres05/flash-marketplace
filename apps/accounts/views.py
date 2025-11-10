@@ -421,59 +421,32 @@ El equipo de Flash Marketplace
                 '''
                 
                 print(f"\n{'='*60}")
-                print(f"📧 ENVIANDO EMAIL CON SENDGRID API")
+                print(f"📧 ENVIANDO EMAIL CON DJANGO SMTP")
                 print(f"{'='*60}")
                 print(f"  - Desde: {from_email}")
                 print(f"  - Para: {destination_email_thread}")
                 print(f"  - Código: {code}")
+                print(f"  - Backend: {django_settings.EMAIL_BACKEND}")
                 
-                # Crear mensaje
-                message = Mail(
-                    from_email=Email(from_email),
-                    to_emails=To(destination_email_thread),
+                # Usar send_mail de Django directamente (más confiable)
+                from django.core.mail import EmailMultiAlternatives
+                
+                email = EmailMultiAlternatives(
                     subject=subject,
-                    plain_text_content=Content("text/plain", text_content),
-                    html_content=Content("text/html", html_content)
+                    body=text_content,
+                    from_email=from_email,
+                    to=[destination_email_thread]
                 )
+                email.attach_alternative(html_content, "text/html")
+                email.send(fail_silently=False)
                 
-                # Enviar usando SendGrid API
-                api_key = getattr(django_settings, 'SENDGRID_API_KEY', None)
-                if not api_key:
-                    print("⚠️ SENDGRID_API_KEY no configurado, intentando con EMAIL_HOST_PASSWORD")
-                    api_key = django_settings.EMAIL_HOST_PASSWORD
-                
-                print(f"  - API Key configurado: {'Sí' if api_key else 'NO'}")
-                
-                sg = SendGridAPIClient(api_key)
-                response = sg.send(message)
-                
-                print(f"✅ Email enviado exitosamente!")
-                print(f"  - Status Code: {response.status_code}")
-                print(f"  - Message ID: {response.headers.get('X-Message-Id', 'N/A')}")
+                print(f"✅ Email enviado exitosamente con Django!")
                 print(f"{'='*60}\n")
-                
-            except ImportError:
-                print("⚠️ SendGrid no disponible, usando send_mail de Django como fallback")
-                # Fallback a send_mail de Django
-                try:
-                    send_mail(
-                        subject='Código de Recuperación de Contraseña - Flash Marketplace',
-                        message=text_content,
-                        from_email=from_email,
-                        recipient_list=[destination_email_thread],
-                        fail_silently=False,
-                    )
-                    print("✅ Email enviado con Django send_mail")
-                except Exception as e:
-                    print(f"❌ Error al enviar con send_mail: {type(e).__name__}: {e}")
-                    raise
                     
             except Exception as e:
                 print(f"\n❌ ERROR AL ENVIAR EMAIL:")
                 print(f"   Tipo: {type(e).__name__}")
                 print(f"   Mensaje: {str(e)}")
-                if hasattr(e, 'body'):
-                    print(f"   Detalle: {e.body}")
                 print(f"{'='*60}\n")
                 raise
             
