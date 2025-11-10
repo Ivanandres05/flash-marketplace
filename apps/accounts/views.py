@@ -417,53 +417,51 @@ El equipo de Flash Marketplace
             '''
             
             print(f"\n{'='*60}")
-            print(f"📧 ENVIANDO EMAIL CON DJANGO SMTP")
+            print(f"📧 ENVIANDO EMAIL CON GMAIL")
             print(f"{'='*60}")
             print(f"  - Desde: {from_email}")
             print(f"  - Para: {destination_email_thread}")
             print(f"  - Código: {code}")
-            print(f"  - Backend: {django_settings.EMAIL_BACKEND}")
             
-            # Usar send_mail de Django directamente (más confiable)
-            from django.core.mail import EmailMultiAlternatives
-            import socket
+            # Intentar enviar email con Gmail
+            from .gmail_utils import send_gmail_api, send_gmail_simple
             
-            # Configurar timeout más corto para evitar worker timeout
-            socket.setdefaulttimeout(30)
+            email_sent = False
             
-            try:
-                email = EmailMultiAlternatives(
+            # Intentar primero con Gmail API (funciona en Render)
+            if not django_settings.DEBUG:
+                print("  - Intentando Gmail API (producción)...")
+                email_sent = send_gmail_api(
+                    to_email=destination_email_thread,
                     subject=subject,
-                    body=text_content,
-                    from_email=from_email,
-                    to=[destination_email_thread]
+                    html_content=html_content,
+                    text_content=text_content
                 )
-                email.attach_alternative(html_content, "text/html")
-                email.send(fail_silently=False)
-                
-                print(f"✅ Email enviado exitosamente con Django!")
-                print(f"{'='*60}\n")
-            except socket.timeout:
-                print(f"⚠️ TIMEOUT al enviar email (30s), pero código guardado")
-                print(f"{'='*60}\n")
-                # Continuar de todas formas, el código está guardado
-            except Exception as e:
-                print(f"\n❌ ERROR AL ENVIAR EMAIL:")
-                print(f"   Tipo: {type(e).__name__}")
-                print(f"   Mensaje: {str(e)}")
-                print(f"{'='*60}\n")
-                # Continuar de todas formas, el código está guardado
-            finally:
-                socket.setdefaulttimeout(None)
+            
+            # Si no funcionó o estamos en desarrollo, usar SMTP
+            if not email_sent:
+                print("  - Intentando Gmail SMTP (desarrollo)...")
+                email_sent = send_gmail_simple(
+                    to_email=destination_email_thread,
+                    subject=subject,
+                    html_content=html_content,
+                    text_content=text_content
+                )
+            
+            print(f"{'='*60}\n")
             
             # Guardar el identifier en la sesión para el siguiente paso
             request.session['reset_identifier'] = identifier
             
-            # Mensaje personalizado según donde se envió
-            if destination_email_thread != user_email:
-                messages.success(request, f'Se ha enviado un código de verificación a tu correo alternativo: {destination_email_thread}')
-            else:
+            # Mensaje personalizado
+            if email_sent:
                 messages.success(request, f'Se ha enviado un código de verificación a tu correo: {destination_email_thread}')
+            else:
+                # Mostrar el código directamente si no se pudo enviar (solo para desarrollo/debug)
+                if django_settings.DEBUG:
+                    messages.warning(request, f'⚠️ No se pudo enviar el email. Tu código es: {code} (válido por 15 minutos)')
+                else:
+                    messages.info(request, f'Se generó un código. Si no lo recibes, contacta soporte.')
             
             return redirect('accounts:verify-reset-code')
                 

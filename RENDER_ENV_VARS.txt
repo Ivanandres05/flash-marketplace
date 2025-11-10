@@ -1,48 +1,33 @@
-📋 VARIABLES DE ENTORNO PARA RENDER - COPIAR Y PEGAR
+📋 VARIABLES DE ENTORNO PARA RENDER - GMAIL API
 ================================================================
 
 Ir a: https://dashboard.render.com/web/srv-ctbkfabtq21c73ahqj60
 Pestaña: Environment
-Acción: Agregar/Actualizar estas variables
+Acción: ELIMINAR variables antiguas de email y agregar nueva
 
 ================================================================
-VARIABLES A CONFIGURAR:
+ELIMINAR ESTAS VARIABLES (ya no se usan):
+================================================================
+❌ EMAIL_BACKEND
+❌ EMAIL_HOST  
+❌ EMAIL_HOST_PASSWORD
+❌ EMAIL_HOST_USER
+❌ EMAIL_PORT
+❌ EMAIL_USE_TLS
+
+================================================================
+AGREGAR ESTA VARIABLE:
 ================================================================
 
-EMAIL_BACKEND
-django.core.mail.backends.smtp.EmailBackend
-
-EMAIL_HOST
-smtp.gmail.com
-
-EMAIL_PORT
-587
-
-EMAIL_USE_TLS
-True
-
-EMAIL_HOST_USER
-ivanandreshernandezc@gmail.com
-
-EMAIL_HOST_PASSWORD
-qnndnwjglmtkiyir
+GMAIL_CREDENTIALS_BASE64
+[Seguir guía en GMAIL_API_SETUP.md para obtener este valor]
 
 DEFAULT_FROM_EMAIL
 ivanandreshernandezc@gmail.com
 
 ================================================================
-NOTA: La contraseña es sin espacios: qnndnwjglmtkiyir
-================================================================
-
-PASOS:
-1. Ir al dashboard de Render
-2. Seleccionar servicio "flash-marketplace"
-3. Ir a pestaña "Environment"
-4. Agregar cada variable (clic en "Add Environment Variable")
-5. Copiar nombre y valor exactos de arriba
-6. Hacer clic en "Save Changes"
-7. Render redesplegar automáticamente (~2-3 min)
-8. Probar recuperación de contraseña en:
-   https://flash-marketplace.onrender.com/cuentas/solicitar-recuperacion/
-
+NOTA: 
+- Primero debes configurar Gmail API en Google Cloud Console
+- Seguir pasos en GMAIL_API_SETUP.md
+- El valor de GMAIL_CREDENTIALS_BASE64 se genera automáticamente
 ================================================================
