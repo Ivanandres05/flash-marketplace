@@ -76,6 +76,9 @@ CACHES = {
     }
 }
 
+# Email Configuration - Timeouts más largos para evitar worker timeout
+EMAIL_TIMEOUT = 60  # 60 segundos para conectar al servidor SMTP
+
 # Logging
 LOGGING = {
     'version': 1,

@@ -37,4 +37,4 @@ EXPOSE 8000
 # Script de inicio
 CMD python manage.py migrate --noinput --settings=flash.settings.prod && \
     python manage.py collectstatic --noinput --settings=flash.settings.prod && \
-    gunicorn --bind 0.0.0.0:8000 --workers 2 --timeout 120 --log-level info flash.wsgi:application
+    gunicorn --bind 0.0.0.0:8000 --workers 2 --timeout 300 --graceful-timeout 300 --log-level debug flash.wsgi:application

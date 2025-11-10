@@ -362,15 +362,11 @@ def request_password_reset(request):
             
             print(f"📧 Preparando envío desde: {from_email} a {destination_email_thread}")
             
-            # Enviar email usando SendGrid API (más confiable que SMTP)
-            try:
-                from sendgrid import SendGridAPIClient
-                from sendgrid.helpers.mail import Mail, Email, To, Content
-                
-                subject = 'Código de Recuperación de Contraseña - Flash Marketplace'
-                
-                # Contenido del mensaje en HTML y texto plano
-                html_content = f'''
+            # Preparar contenido del email
+            subject = 'Código de Recuperación de Contraseña - Flash Marketplace'
+            
+            # Contenido del mensaje en HTML y texto plano
+            html_content = f'''
 <!DOCTYPE html>
 <html>
 <head>
@@ -403,9 +399,9 @@ def request_password_reset(request):
     </div>
 </body>
 </html>
-                '''
-                
-                text_content = f'''
+            '''
+            
+            text_content = f'''
 Hola {user_name},
 
 Has solicitado restablecer tu contraseña en Flash Marketplace.
@@ -418,19 +414,24 @@ Si no solicitaste este cambio, ignora este correo.
 
 Saludos,
 El equipo de Flash Marketplace
-                '''
-                
-                print(f"\n{'='*60}")
-                print(f"📧 ENVIANDO EMAIL CON DJANGO SMTP")
-                print(f"{'='*60}")
-                print(f"  - Desde: {from_email}")
-                print(f"  - Para: {destination_email_thread}")
-                print(f"  - Código: {code}")
-                print(f"  - Backend: {django_settings.EMAIL_BACKEND}")
-                
-                # Usar send_mail de Django directamente (más confiable)
-                from django.core.mail import EmailMultiAlternatives
-                
+            '''
+            
+            print(f"\n{'='*60}")
+            print(f"📧 ENVIANDO EMAIL CON DJANGO SMTP")
+            print(f"{'='*60}")
+            print(f"  - Desde: {from_email}")
+            print(f"  - Para: {destination_email_thread}")
+            print(f"  - Código: {code}")
+            print(f"  - Backend: {django_settings.EMAIL_BACKEND}")
+            
+            # Usar send_mail de Django directamente (más confiable)
+            from django.core.mail import EmailMultiAlternatives
+            import socket
+            
+            # Configurar timeout más corto para evitar worker timeout
+            socket.setdefaulttimeout(30)
+            
+            try:
                 email = EmailMultiAlternatives(
                     subject=subject,
                     body=text_content,
@@ -442,13 +443,18 @@ El equipo de Flash Marketplace
                 
                 print(f"✅ Email enviado exitosamente con Django!")
                 print(f"{'='*60}\n")
-                    
+            except socket.timeout:
+                print(f"⚠️ TIMEOUT al enviar email (30s), pero código guardado")
+                print(f"{'='*60}\n")
+                # Continuar de todas formas, el código está guardado
             except Exception as e:
                 print(f"\n❌ ERROR AL ENVIAR EMAIL:")
                 print(f"   Tipo: {type(e).__name__}")
                 print(f"   Mensaje: {str(e)}")
                 print(f"{'='*60}\n")
-                raise
+                # Continuar de todas formas, el código está guardado
+            finally:
+                socket.setdefaulttimeout(None)
             
             # Guardar el identifier en la sesión para el siguiente paso
             request.session['reset_identifier'] = identifier
